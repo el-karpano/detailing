@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getStudio } from '../data/store'
 
 function formatDuration(min: number) {
@@ -9,37 +9,30 @@ function formatDuration(min: number) {
 
 export default function Services() {
   const studio = getStudio()
+  const nav = useNavigate()
   const services = studio.services.filter((s) => s.active)
 
   return (
-    <main className="safe-bottom mx-auto max-w-lg px-5 pt-8">
-      <h1 className="text-[34px] leading-[1.1] font-semibold tracking-tight">Услуги и цены</h1>
-      <p className="mt-4 text-[15px] leading-relaxed text-[#A1A1A1]">
+    <main className="safe-bottom shell" style={{ paddingTop: 'var(--s8)' }}>
+      <h1 className="h1">Услуги и цены</h1>
+      <p className="muted" style={{ marginTop: 'var(--s4)' }}>
         Время включает работу с автомобилем. Стоимость «от» уточняется после осмотра.
       </p>
 
-      <div className="card mt-8 divide-y divide-[#262626]">
+      <div className="service-list" style={{ marginTop: 'var(--s8)' }}>
         {services.map((s) => (
-          <Link
-            key={s.id}
-            to={`/book/${s.id}`}
-            className="flex items-start justify-between gap-4 p-5 transition hover:bg-white/[0.03]"
-          >
-            <div className="min-w-0">
-              <div className="text-[15px] font-semibold">{s.title}</div>
-              <div className="mt-1 text-[13px] leading-snug text-[#A1A1A1]">
+          <button key={s.id} type="button" className="service-row" onClick={() => nav(`/book/${s.id}`)}>
+            <div style={{ minWidth: 0 }}>
+              <div className="service-row-title">{s.title}</div>
+              <div className="service-row-desc">
                 {formatDuration(s.durationMin)} — {s.description}
               </div>
             </div>
-            <div className="shrink-0 pt-1 text-right">
-              <div className="flex items-center justify-end gap-2">
-                <span className="text-[15px] font-semibold whitespace-nowrap">
-                  {s.price.toLocaleString('ru-RU')} ₽
-                </span>
-                <span className="arrow-up text-lg">↗</span>
-              </div>
+            <div className="service-row-price">
+              {s.price >= 12000 ? `от ${s.price.toLocaleString('ru-RU')} ₽` : `${s.price.toLocaleString('ru-RU')} ₽`}
+              <span aria-hidden>↗</span>
             </div>
-          </Link>
+          </button>
         ))}
       </div>
     </main>

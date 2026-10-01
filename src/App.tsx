@@ -9,6 +9,8 @@ import OwnerDashboard from './pages/OwnerDashboard'
 import OwnerSettings from './pages/OwnerSettings'
 import OwnerBookings from './pages/OwnerBookings'
 import Assistant from './pages/Assistant'
+import Account from './pages/Account'
+import Install from './pages/Install'
 
 export default function App() {
   return (
@@ -19,6 +21,8 @@ export default function App() {
         <Route path="my" element={<MyBookings />} />
         <Route path="book/:serviceId" element={<BookingPage />} />
         <Route path="assistant" element={<Assistant />} />
+        <Route path="account" element={<Account />} />
+        <Route path="install" element={<Install />} />
         <Route path="owner" element={<OwnerLogin />} />
         <Route path="owner/dashboard" element={<OwnerDashboard />} />
         <Route path="owner/bookings" element={<OwnerBookings />} />

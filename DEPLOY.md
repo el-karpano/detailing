@@ -34,6 +34,13 @@
 - Свой домен подключается бесплатно
 - Git-деплой + drag-and-drop архива
 
+### Этот проект сейчас живёт здесь
+- **Pages**: https://detailing-main.pages.dev  
+- **Workers (запасной, если pages.dev не открывается)**: https://detailing-main.deteiling-pro.workers.dev  
+- Worker-конфиг: `wrangler.toml` (SPA fallback через `not_found_handling`)
+- Деплой Worker: `npx wrangler deploy` (перед этим `npm run build`, для Worker **не** класть `dist/_redirects` — конфликтует)
+- Логин: `npx wrangler login`
+
 ### Подключение из GitHub
 1. https://dash.cloudflare.com → **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**
 2. Выбрать repo, ветка `main`

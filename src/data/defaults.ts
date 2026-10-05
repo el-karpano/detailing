@@ -1,5 +1,8 @@
 import type { Booking, DaySchedule, Service, Studio } from '../types'
 
+/** Поднять при изменении услуг/фото/текстов — перезальёт контент из кода в localStorage. */
+export const DEFAULTS_REV = 2
+
 export const DEFAULT_STUDIO: Studio = {
   id: 'studio-main',
   name: 'SGX Detailing',

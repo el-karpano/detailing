@@ -1,7 +1,8 @@
 import type { Booking, DaySchedule, OwnerUser, Studio } from '../types'
-import { DEFAULT_STUDIO, seedBookings, seedSchedule } from './defaults'
+import { DEFAULT_STUDIO, DEFAULTS_REV, seedBookings, seedSchedule } from './defaults'
 
 type DB = {
+  defaultsRev?: number
   studio: Studio
   schedule: DaySchedule[]
   bookings: Booking[]
@@ -26,7 +27,25 @@ function load(): DB {
   const raw = localStorage.getItem(studioDbKey())
   if (raw) {
     try {
-      return JSON.parse(raw) as DB
+      const db = JSON.parse(raw) as DB
+      if (db.defaultsRev === DEFAULTS_REV) return db
+      // Контент в коде обновился — обновляем услуги/фото/тексты, записи не трогаем.
+      const slug = studioSlug()
+      const fresh = structuredClone(DEFAULT_STUDIO)
+      if (slug !== 'default') {
+        fresh.id = `studio-${slug}`
+        fresh.name = slug
+      }
+      db.studio = {
+        ...fresh,
+        id: db.studio.id,
+        name: db.studio.name,
+        bays: db.studio.bays,
+        prepMin: db.studio.prepMin,
+      }
+      db.defaultsRev = DEFAULTS_REV
+      save(db)
+      return db
     } catch {
       /* reseed */
     }
@@ -38,6 +57,7 @@ function load(): DB {
     studio.name = slug
   }
   const db: DB = {
+    defaultsRev: DEFAULTS_REV,
     studio,
     schedule: seedSchedule(),
     bookings: seedBookings(studio.id, studio.services),

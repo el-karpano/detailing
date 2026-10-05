@@ -35,13 +35,16 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         runtimeCaching: [
           {
             urlPattern: ({ request }) => request.destination === 'image',
-            handler: 'CacheFirst',
+            handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'images',
-              expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 },
             },
           },
         ],

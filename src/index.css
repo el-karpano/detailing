@@ -23,12 +23,15 @@
   --touch: 48px;
   --label-size: 14px;
   --small-size: 13px;
+  --body-size: 16px;
   --title-size: 22px;
   --section-size: 28px;
+  --display-size: 34px;
   --motion: 0.18s;
   --color-accent: #2694fe;
   --color-on-accent: #fff;
   --bg: #000;
+  --scrim: #000000a3;
 }
 
 * {
@@ -554,8 +557,158 @@ textarea {
   padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
 }
 
+/* —— install (PWA) —— */
+.install-card {
+  isolation: isolate;
+  background: var(--surface);
+  border: var(--line) solid var(--stroke);
+  margin-bottom: var(--s8);
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.install-card::after {
+  content: '';
+  background: var(--scrim);
+  pointer-events: none;
+  z-index: 0;
+  position: absolute;
+  inset: 0;
+}
+
+.install-content {
+  z-index: 1;
+  min-width: 0;
+  max-width: 640px;
+  position: relative;
+}
+
+.install-content h2 {
+  font-size: var(--display-size);
+  text-wrap: balance;
+  line-height: 1.15;
+}
+
+.install-app-icon {
+  width: var(--s12);
+  height: var(--s12);
+  padding: var(--s2);
+  border-radius: var(--s3);
+  background: var(--surface);
+  border: var(--line) solid var(--stroke);
+}
+
+.install-app-icon.brand-logo {
+  width: var(--s12);
+  height: var(--s12);
+  flex-basis: var(--s12);
+  font-size: 28px;
+}
+
 .install-cta {
-  margin-top: var(--s5);
+  align-self: flex-start;
+  max-width: 100%;
+  margin-top: 0;
+}
+
+.install-guide {
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.install-guide-hero {
+  margin-bottom: 0;
+}
+
+.install-guide h1 {
+  font-size: var(--display-size);
+  text-wrap: balance;
+  line-height: 1.15;
+}
+
+.install-devices {
+  padding: var(--s1);
+  border: var(--line) solid var(--stroke);
+  border-radius: var(--s5);
+  background: var(--surface);
+  width: 100%;
+}
+
+.install-devices .button {
+  min-width: 0;
+  padding-inline: var(--s2);
+  font-size: var(--small-size);
+  border-radius: var(--s4);
+  flex: 1 1 0%;
+}
+
+.install-devices .button[aria-pressed='true'] {
+  background: var(--overlay);
+  color: var(--ink);
+}
+
+.install-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.install-step {
+  padding-block: var(--s5);
+  border-bottom: var(--line) solid var(--stroke);
+}
+
+.install-step:first-child {
+  padding-top: 0;
+}
+
+.install-step h3,
+.install-browser-help h3 {
+  font-size: var(--body-size);
+  line-height: 1.5;
+}
+
+.install-step-number {
+  width: var(--s10);
+  height: var(--s10);
+  background: var(--raised);
+  border: var(--line) solid var(--stroke);
+  border-radius: 50%;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  display: flex;
+}
+
+.install-browser-help {
+  padding: var(--s5);
+  border: var(--line) solid var(--stroke);
+  border-radius: var(--s5);
+  background: var(--surface);
+}
+
+@media (max-width: 640px) {
+  .install-card {
+    padding: var(--s5);
+  }
+
+  .install-content h2,
+  .install-guide h1 {
+    font-size: var(--display-size);
+  }
+
+  .install-cta {
+    width: 100%;
+    padding-inline: var(--s3);
+    align-self: stretch;
+  }
+
+  .install-step {
+    gap: var(--s3);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

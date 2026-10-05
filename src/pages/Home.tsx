@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { getMyBookings, getStudio } from '../data/store'
+import { useInstall } from '../lib/pwaInstall'
 
 function formatDuration(min: number) {
   if (min >= 480 && min % 480 === 0) return `${min / 480} д`
@@ -14,6 +15,7 @@ function formatPrice(price: number) {
 export default function Home() {
   const studio = getStudio()
   const nav = useNavigate()
+  const install = useInstall()
   const bookings = getMyBookings()
   const active = studio.services.filter((s) => s.active)
   const minPrice = Math.min(...active.map((s) => s.price))
@@ -157,29 +159,39 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="card" style={{ marginTop: 'var(--s8)', padding: 'var(--s6)' }}>
-        <div style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'center' }}>
-          <img src="/assets/logo.svg" alt="" className="brand-logo" />
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 15 }}>SGX</div>
-            <div className="muted small">Приложение студии</div>
+      {!install.installed && (
+        <div className="card install-card" style={{ marginTop: 'var(--s8)', padding: 'var(--s6)' }}>
+          <div className="ocean-content install-content">
+            <div style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'center' }}>
+              <img src="/assets/logo.svg" alt="Логотип SGX" className="brand-logo install-app-icon" />
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 15 }}>SGX</div>
+                <div className="muted small">Приложение студии</div>
+              </div>
+            </div>
+            <div>
+              <h2 className="h2">
+                Студия всегда
+                <br />
+                под рукой.
+              </h2>
+              <p className="muted" style={{ marginTop: 'var(--s2)' }}>
+                Записывайтесь за несколько касаний, без поиска ссылки и звонков.
+              </p>
+            </div>
+            <Link to="/install" className="button button-primary install-cta">
+              <svg width="22" height="22" fill="currentColor" viewBox="0 0 256 256" aria-hidden="true">
+                <path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z" />
+              </svg>
+              Добавить на экран
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 256 256" aria-hidden="true">
+                <path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z" />
+              </svg>
+            </Link>
+            <p className="muted small">Бесплатно. Установка через браузер.</p>
           </div>
         </div>
-        <h2 className="h2" style={{ marginTop: 'var(--s5)' }}>
-          Студия всегда
-          <br />
-          под рукой.
-        </h2>
-        <p className="muted small" style={{ marginTop: 'var(--s3)' }}>
-          Записывайтесь за несколько касаний, без поиска ссылки и звонков.
-        </p>
-        <Link to="/install" className="button button-primary install-cta">
-          Добавить на экран
-        </Link>
-        <p className="muted small" style={{ marginTop: 'var(--s3)' }}>
-          Бесплатно. Установка через браузер.
-        </p>
-      </div>
+      )}
 
       {bookings.length > 0 && (
         <Link to="/my" className="button button-secondary" style={{ width: '100%', marginTop: 'var(--s3)' }}>

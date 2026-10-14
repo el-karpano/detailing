@@ -1,8 +1,8 @@
 {
-  "slug": "testqa",
-  "workerName": "detailing-testqa",
-  "name": "QA Тест Студия",
-  "shortName": "QA",
-  "description": "Тестовая студия",
+  "slug": "autolava",
+  "workerName": "detailing-autolava",
+  "name": "AutoLava.by",
+  "shortName": "AUTOLAVA",
+  "description": "Студия детейлинга и оклейки авто в Минске — антигравийная плёнка, керамика, полировка и защита ЛКП",
   "currency": "Br"
 }

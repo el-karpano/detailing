@@ -1,4 +1,4 @@
-name = "detailing-testqa"
+name = "detailing-autolava"
 compatibility_date = "2026-01-01"
 compatibility_flags = ["nodejs_compat"]
 main = "worker/index.js"
@@ -9,8 +9,8 @@ id = "9b9db4766eb84d6ea2c4250ba8f44eb3"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "detailing-testqa-db"
-database_id = "5fff6aff-4210-4819-aafa-5ca1c91f151d"
+database_name = "detailing-autolava-db"
+database_id = "200f9c5f-2ca7-403e-b3af-eb45685d171b"
 
 [assets]
 directory = "./dist"
@@ -19,5 +19,5 @@ binding = "ASSETS"
 run_worker_first = ["/api/*"]
 
 [vars]
-WORKER_NAME = "detailing-testqa"
-STUDIO_ID = "studio-testqa"
+WORKER_NAME = "detailing-autolava"
+STUDIO_ID = "studio-autolava"

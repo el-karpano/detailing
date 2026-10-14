@@ -1,8 +1,8 @@
 {
-  "slug": "francev",
-  "workerName": "detailing-francev",
-  "name": "FRANCEV DETAILING",
-  "shortName": "FRANCEV",
-  "description": "Центр по оклейке и детейлингу в Минске — антигравийная плёнка, полировка, керамика, химчистка и шумоизоляция",
+  "slug": "testqa",
+  "workerName": "detailing-testqa",
+  "name": "QA Тест Студия",
+  "shortName": "QA",
+  "description": "Тестовая студия",
   "currency": "Br"
 }

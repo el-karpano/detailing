@@ -1,6 +1,7 @@
 /**
  * Вход владельца: email+пароль из D1 (PBKDF2), сессии в KV.
  */
+import { clientIp, rateLimit, tooMany } from './security.js'
 
 const SCHEMA = `CREATE TABLE IF NOT EXISTS owners (
   email TEXT PRIMARY KEY,
@@ -149,6 +150,10 @@ export async function handleAuth(request, env, url) {
   const method = request.method
 
   if (p === '/api/auth/login' && method === 'POST') {
+    // анти-перебор: 10 попыток / 10 минут с IP
+    const rl = await rateLimit(env, 'login', 'ip:' + clientIp(request), 10, 600)
+    if (!rl.ok) return tooMany(rl.retryAfterSec)
+
     let body
     try {
       body = await request.json()

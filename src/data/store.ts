@@ -1,6 +1,7 @@
 import type { Booking, DaySchedule, OwnerUser, Studio } from '../types'
 import { DEFAULT_STUDIO, DEFAULTS_REV, seedBookings, seedSchedule } from './defaults'
 import {
+  cancelOwnBooking,
   deleteServerBooking,
   fetchServerBookings,
   patchBooking as apiPatchBooking,
@@ -140,7 +141,22 @@ export async function syncBookingsFromServer(): Promise<boolean> {
     for (const b of localOnly) {
       void pushBooking({ ...b, studioId: db.studio.id }).catch(() => {})
     }
-    db.bookings = [...remote, ...localOnly]
+    // Публичный GET отдаёт слоты без PII — для своих записей сохраняем локальные имя/телефон/авто.
+    const mergedRemote = remote.map((b) => {
+      const local = db.bookings.find((x) => x.id === b.id)
+      const keepLocal = local && mine.has(b.id) && !b.phone
+      return keepLocal
+        ? {
+            ...b,
+            clientName: b.clientName || local.clientName,
+            phone: b.phone || local.phone,
+            car: b.car || local.car,
+            clientToken: b.clientToken || local.clientToken,
+            price: b.price || local.price,
+          }
+        : b
+    })
+    db.bookings = [...mergedRemote, ...localOnly]
     commit() // уже вызывает bump
     return true
   } catch {
@@ -255,8 +271,10 @@ export async function addBooking(
   }
 
   // Сервер (D1) — источник истины. Конфликт там = слот занят с другого устройства.
+  let clientToken: string | undefined
   try {
-    await pushBooking({ ...booking, durationMin: duration } as Booking)
+    const res = await pushBooking({ ...booking, durationMin: duration } as Booking)
+    if (res.ok && res.clientToken) clientToken = res.clientToken
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     if (/занят|409|conflict/i.test(msg)) {
@@ -267,21 +285,30 @@ export async function addBooking(
     // офлайн / временная ошибка — сохраняем локально
   }
 
-  db.bookings.push(booking)
+  const saved: Booking = clientToken ? { ...booking, clientToken } : booking
+  db.bookings.push(saved)
   // Пока записи нет на сервере — держим её за этим устройством, иначе sync её выкинет.
   markMyBooking(booking.id)
   commit()
-  return { ok: true, booking }
+  return { ok: true, booking: saved }
 }
 
 export function updateBooking(id: string, patch: Partial<Booking>) {
   const db = getDB()
   const idx = db.bookings.findIndex((b) => b.id === id)
-  if (idx >= 0) {
-    db.bookings[idx] = { ...db.bookings[idx], ...patch }
-    commit()
-    void apiPatchBooking(id, patch).catch(() => {})
+  if (idx < 0) return
+  const prev = db.bookings[idx]
+  db.bookings[idx] = { ...prev, ...patch }
+  commit()
+
+  const onlyCancel = patch.status === 'cancelled' && Object.keys(patch).every((k) => k === 'status')
+  if (onlyCancel && prev.clientToken && !getAuthToken()) {
+    // клиент отменяет свою запись без входа
+    void cancelOwnBooking(id, prev.clientToken).catch(() => {})
+    return
   }
+  // владелец (или прочие правки) — обычный PATCH с Bearer
+  void apiPatchBooking(id, patch).catch(() => {})
 }
 
 export function deleteBooking(id: string) {

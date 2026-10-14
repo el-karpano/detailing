@@ -40,6 +40,9 @@ export type Booking = {
   paid: number
   createdAt: string
   reminderEnabled: boolean
+  durationMin?: number
+  /** секрет для отмены своей записи без входа в кабинет */
+  clientToken?: string
 }
 
 export type OwnerUser = {

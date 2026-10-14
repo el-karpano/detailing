@@ -53,5 +53,7 @@
         "body": "Карточка тестового клиента"
       }
     ]
-  }
+  },
+  "databaseName": "detailing-demo-db",
+  "databaseId": "c276b879-7e21-40cf-82b8-c48011b8b1fb"
 }

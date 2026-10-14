@@ -3,6 +3,7 @@
  * Used by the Cloudflare Worker (prod) and Vite middleware (local dev).
  * API key comes from env — never hardcode.
  */
+import { clientIp, rateLimit, tooMany } from './security.js'
 
 const MAX_INPUT = 2000
 
@@ -50,6 +51,11 @@ function cleanReply(raw) {
 export async function handleChat(request, env) {
   if (request.method !== 'POST') {
     return json({ error: 'Method not allowed' }, 405)
+  }
+  // rate limit (страховка; index.js тоже проверяет)
+  if (env.VISITS) {
+    const rl = await rateLimit(env, 'chat', 'ip:' + clientIp(request), 30, 3600)
+    if (!rl.ok) return tooMany(rl.retryAfterSec)
   }
 
   const apiKey = env.MIMO_API_KEY

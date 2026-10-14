@@ -4,6 +4,29 @@
  */
 
 const STORAGE_KEY = 'detailing-notified-visits'
+const VISIT_TOKENS_KEY = 'detailing-visit-tokens'
+
+function visitTokenMap(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(VISIT_TOKENS_KEY) || '{}') as Record<string, string>
+  } catch {
+    return {}
+  }
+}
+
+function saveVisitToken(id: string, token: string) {
+  try {
+    const m = visitTokenMap()
+    m[id] = token
+    localStorage.setItem(VISIT_TOKENS_KEY, JSON.stringify(m))
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getVisitToken(id: string): string {
+  return visitTokenMap()[id] || ''
+}
 
 function notifiedSet(): Set<string> {
   try {
@@ -132,16 +155,21 @@ export async function scheduleVisitReminder(b: ReminderBooking): Promise<boolean
         remind: true,
       }),
     })
-    return res.ok
+    if (!res.ok) return false
+    const data = (await res.json().catch(() => ({}))) as { deleteToken?: string }
+    if (data.deleteToken) saveVisitToken(b.id, data.deleteToken)
+    return true
   } catch {
     return false
   }
 }
 
-/** Отмена визита — убрать напоминание с сервера. */
+/** Отмена визита — убрать напоминание с сервера (по своему deleteToken). */
 export async function cancelVisitReminder(id: string) {
   try {
-    await fetch(`/api/visits/${encodeURIComponent(id)}`, { method: 'DELETE' })
+    const token = getVisitToken(id)
+    const qs = token ? `?token=${encodeURIComponent(token)}` : ''
+    await fetch(`/api/visits/${encodeURIComponent(id)}${qs}`, { method: 'DELETE' })
   } catch {
     /* ignore */
   }

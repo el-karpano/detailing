@@ -4,6 +4,7 @@
  * API key comes from env — never hardcode.
  */
 import { clientIp, rateLimit, tooMany } from './security.js'
+import { localToday, studioTz } from './time.js'
 
 const MAX_INPUT = 2000
 
@@ -174,7 +175,7 @@ function buildSystemPrompt(studio, freeSlots) {
     .map((d) => `- ${d.date}: ${(d.times || []).slice(0, 8).join(', ')}`)
     .join('\n')
 
-  const today = new Date().toISOString().slice(0, 10)
+  const today = localToday(studioTz(env))
   const fmt = (iso) => {
     const [y, m, d] = String(iso).split('-').map(Number)
     return d && m ? `${d} ${['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'][m - 1]}` : iso

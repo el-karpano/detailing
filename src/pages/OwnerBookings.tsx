@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { currentOwner, getBookings, getStudio, syncBookingsFromServer, updateBooking } from '../data/store'
+import { localIsoDate } from '../lib/dates'
 import { useStoreTick } from '../lib/useStoreTick'
 import { OwnerBookingRow, StatusBadge } from './OwnerDashboard'
 import type { BookingStatus } from '../types'
@@ -27,7 +28,7 @@ export default function OwnerBookings() {
     void syncBookingsFromServer()
   }, [])
 
-  const today = new Date().toISOString().slice(0, 10)
+  const today = localIsoDate()
 
   const all = useMemo(() => {
     return getBookings(studio.id)

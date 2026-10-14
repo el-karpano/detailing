@@ -1,4 +1,5 @@
 import type { Booking, DaySchedule, Service, Studio } from '../types'
+import { localIsoDate } from '../lib/dates'
 import { CLIENT_BRAND, CLIENT_SLUG, CLIENT_STUDIO, CLIENT_WORKER, DEFAULTS_REV } from './client-data'
 
 export { CLIENT_BRAND, CLIENT_SLUG, CLIENT_STUDIO, CLIENT_WORKER, DEFAULTS_REV }
@@ -24,7 +25,7 @@ export function seedSchedule(days = 60, workHours?: string): DaySchedule[] {
   for (let i = 0; i < days; i++) {
     const d = new Date(now)
     d.setDate(now.getDate() + i)
-    const iso = d.toISOString().slice(0, 10)
+    const iso = localIsoDate(d)
     const dow = d.getDay()
     out.push({
       date: iso,
@@ -53,7 +54,7 @@ export function seedBookings(studioId: string, services: Service[]): Booking[] {
       clientName: 'Иван Петров',
       phone: '+7 (900) 111-22-33',
       car: 'BMW X5, чёрный',
-      date: tomorrow.toISOString().slice(0, 10),
+      date: localIsoDate(tomorrow),
       time: '10:00',
       bay: 1,
       status: 'accepted',
@@ -70,7 +71,7 @@ export function seedBookings(studioId: string, services: Service[]): Booking[] {
       clientName: 'Алексей Смирнов',
       phone: '+7 (900) 222-33-44',
       car: 'Audi Q7, белый',
-      date: dayAfter.toISOString().slice(0, 10),
+      date: localIsoDate(dayAfter),
       time: '13:00',
       bay: 2,
       status: 'pending',

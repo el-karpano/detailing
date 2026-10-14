@@ -293,31 +293,49 @@ export async function addBooking(
   return { ok: true, booking: saved }
 }
 
-export function updateBooking(id: string, patch: Partial<Booking>) {
+export async function updateBooking(id: string, patch: Partial<Booking>): Promise<boolean> {
   const db = getDB()
   const idx = db.bookings.findIndex((b) => b.id === id)
-  if (idx < 0) return
+  if (idx < 0) return false
   const prev = db.bookings[idx]
   db.bookings[idx] = { ...prev, ...patch }
   commit()
 
   const onlyCancel = patch.status === 'cancelled' && Object.keys(patch).every((k) => k === 'status')
-  if (onlyCancel && prev.clientToken && !getAuthToken()) {
-    // клиент отменяет свою запись без входа
-    void cancelOwnBooking(id, prev.clientToken).catch(() => {})
-    return
+  try {
+    if (onlyCancel && prev.clientToken && !getAuthToken()) {
+      await cancelOwnBooking(id, prev.clientToken)
+    } else {
+      await apiPatchBooking(id, patch)
+    }
+    return true
+  } catch (e) {
+    // сервер отказал — откатываем локально, чтобы UI не врал
+    db.bookings[idx] = prev
+    commit()
+    console.error('updateBooking failed', e)
+    return false
   }
-  // владелец (или прочие правки) — обычный PATCH с Bearer
-  void apiPatchBooking(id, patch).catch(() => {})
 }
 
-export function deleteBooking(id: string) {
+export async function deleteBooking(id: string): Promise<boolean> {
   const db = getDB()
   const before = db.bookings.length
+  const removed = db.bookings.find((b) => b.id === id)
   db.bookings = db.bookings.filter((b) => b.id !== id)
-  if (db.bookings.length === before) return
+  if (db.bookings.length === before) return false
   commit()
-  void deleteServerBooking(id).catch(() => {})
+  try {
+    await deleteServerBooking(id)
+    return true
+  } catch (e) {
+    if (removed) {
+      db.bookings.push(removed)
+      commit()
+    }
+    console.error('deleteBooking failed', e)
+    return false
+  }
 }
 
 /** Вход владельца — проверка email/пароля на сервере (D1 owners). */

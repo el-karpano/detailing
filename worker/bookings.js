@@ -21,6 +21,7 @@ import {
   toMin,
   tooMany,
 } from './security.js'
+import { localToday, studioTz, wallClockToUtcMs } from './time.js'
 
 const SCHEMA_STATEMENTS = [
   `CREATE TABLE IF NOT EXISTS bookings (
@@ -184,10 +185,13 @@ export async function handleBookings(request, env, url, opts = {}) {
       return json({ bookings: results.map(isOwner ? rowToFull : rowToPublic) })
     }
 
-    // ——— POST: создание записи (публично, с rate limit) ———
+    // ——— POST: создание записи (публично, с rate limit; владелец без лимита) ———
     if (method === 'POST' && !idParam) {
-      const rl = await rateLimit(env, 'booking-create', 'ip:' + (opts.ip || 'unknown'), 15, 3600)
-      if (!rl.ok) return tooMany(rl.retryAfterSec)
+      const isOwner = !!(auth && auth.session && !auth.response)
+      if (!isOwner) {
+        const rl = await rateLimit(env, 'booking-create', 'ip:' + (opts.ip || 'unknown'), 20, 3600)
+        if (!rl.ok) return tooMany(rl.retryAfterSec)
+      }
 
       let body
       try {
@@ -216,9 +220,9 @@ export async function handleBookings(request, env, url, opts = {}) {
         return json({ error: 'Укажите имя' }, 400)
       }
 
-      // дата не в прошлом (сравниваем в UTC-датах; время — в пределах дня)
-      const now = new Date()
-      const todayStr = now.toISOString().slice(0, 10)
+      // дата не в прошлом — в часовом поясе студии (не UTC!)
+      const tz = studioTz(env)
+      const todayStr = localToday(tz)
       if (date < todayStr) {
         return json({ error: 'Дата уже прошла' }, 400)
       }
@@ -233,9 +237,9 @@ export async function handleBookings(request, env, url, opts = {}) {
         return json({ error: 'Вне часов работы студии' }, 400)
       }
 
-      // минимум 30 минут от «сейчас» (анти-спам слотом «вчера»)
-      const visitAt = new Date(`${date}T${time}:00`).getTime()
-      if (Number.isFinite(visitAt) && visitAt < now.getTime() - 60_000) {
+      // время уже прошло? wall-clock студии → UTC
+      const visitAt = wallClockToUtcMs(date, time, tz)
+      if (Number.isFinite(visitAt) && visitAt < Date.now() - 60_000) {
         return json({ error: 'Время уже прошло' }, 400)
       }
 

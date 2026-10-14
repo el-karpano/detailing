@@ -65,6 +65,12 @@ def main():
     ts = int(time.time())
     studio = "studio-francev"
     slot_date = "2026-12-15"
+    # уникальное окно на прогон, чтобы не конфликтовать с leftovers
+    slot_h = 10 + (ts // 60) % 6  # 10..15
+    slot_m = (ts // 5) % 2 * 30  # 00 или 30
+    slot_time = f"{slot_h:02d}:{slot_m:02d}"
+    # +2 часа — ниже не пересекается (durationMin 60 + prep 30)
+    slot_time_late = f"{slot_h + 2:02d}:00"
     owner_pw = os.environ.get("FRANCEV_OWNER_PASSWORD", "")
 
     print(f"=== security smoke @ {BASE} ===")
@@ -83,6 +89,16 @@ def main():
     st, data = api("/api/bookings/nope", {"status": "cancelled"}, method="PATCH")
     check("PATCH unauth 401/404", st in (401, 404), f"status={st} {data}")
 
+    # owner token (optional) — to bypass booking-create rate limit in smoke
+    owner_tok = None
+    if owner_pw:
+        st, data = api("/api/auth/login", {"email": "owner@francev.by", "password": owner_pw}, method="POST")
+        if st == 200:
+            owner_tok = data.get("token")
+
+    def post_booking(body):
+        return api("/api/bookings", body, method="POST", token=owner_tok)
+
     # 3-7) create bookings
     base_b = {
         "studioId": studio,
@@ -92,32 +108,32 @@ def main():
         "phone": "+375 29 000-00-01",
         "car": "Test",
         "date": slot_date,
-        "time": "10:00",
+        "time": slot_time,
         "bay": 1,
         "durationMin": 60,
         "reminderEnabled": False,
     }
 
-    st, data = api("/api/bookings", {**base_b, "id": f"sec-past-{ts}", "date": "2020-01-01"}, method="POST")
+    st, data = post_booking({**base_b, "id": f"sec-past-{ts}", "date": "2020-01-01"})
     check("POST past date 400", st == 400, f"status={st}")
 
-    st, data = api("/api/bookings", {**base_b, "id": f"sec-nophone-{ts}", "phone": ""}, method="POST")
+    st, data = post_booking({**base_b, "id": f"sec-nophone-{ts}", "phone": ""})
     check("POST no phone 400", st == 400, f"status={st}")
 
     id1 = f"sec-a-{ts}"
     id2 = f"sec-b-{ts}"
-    st, data = api("/api/bookings", {**base_b, "id": id1}, method="POST")
+    st, data = post_booking({**base_b, "id": id1})
     check("POST first 200", st == 200 and data.get("ok"), f"status={st} {str(data)[:120]}")
     token1 = data.get("clientToken") or ""
     check("POST returns clientToken", bool(token1))
 
-    st, data = api("/api/bookings", {**base_b, "id": id1, "time": "11:00"}, method="POST")
+    st, data = post_booking({**base_b, "id": id1, "time": slot_time_late})
     check("POST same id deduped", st == 200 and data.get("deduped") is True, f"status={st} {str(data)[:120]}")
 
-    st, data = api("/api/bookings", {**base_b, "id": id2, "time": "10:30"}, method="POST")
+    st, data = post_booking({**base_b, "id": id2, "time": slot_time})
     check("POST overlap 409", st == 409, f"status={st} {data}")
 
-    st, data = api("/api/bookings", {**base_b, "id": id2, "time": "13:00"}, method="POST")
+    st, data = post_booking({**base_b, "id": id2, "time": slot_time_late})
     check("POST free slot 200", st == 200 and data.get("ok"), f"status={st}")
     token2 = data.get("clientToken") or ""
 

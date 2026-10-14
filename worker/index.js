@@ -16,6 +16,7 @@ import { handleMedia } from './media.js'
 import { handleStudio } from './studio.js'
 import { handleAuth, requireAuth } from './auth.js'
 import { clientIp, json, rateLimit, tooMany } from './security.js'
+import { studioTz, wallClockToUtcMs } from './time.js'
 
 export default {
   async fetch(request, env, ctx) {
@@ -61,16 +62,14 @@ export default {
 
     if (p === '/api/bookings' || p.startsWith('/api/bookings/')) {
       // DELETE и PATCH (кроме клиентской отмены) — владелец.
-      // Сама авторизация внутри handleBookings, чтобы различать cancel по clientToken.
+      // GET: public = слоты, owner = PII. POST: owner без rate-limit.
       let auth
-      if (request.method !== 'GET' && request.method !== 'POST') {
+      if (request.method === 'GET' || request.method === 'POST') {
         auth = await requireAuth(env, request)
-        // для PATCH без auth — оставляем 401 на совести handleBookings (clientToken cancel)
-        if (request.method === 'DELETE' && auth.response) return auth.response
-      } else if (request.method === 'GET') {
-        auth = await requireAuth(env, request)
-        // не редиректим: public GET отдаёт слоты, owner GET — полные данные
         if (auth.response) auth = { session: null, response: null }
+      } else {
+        auth = await requireAuth(env, request)
+        if (request.method === 'DELETE' && auth.response) return auth.response
       }
       return handleBookings(request, env, url, { auth, ip })
     }
@@ -151,7 +150,8 @@ async function saveVisit(request, env) {
     return json({ error: 'bad subscription' }, 400)
   }
 
-  const visitAt = new Date(`${date}T${time}:00`).getTime()
+  // wall-clock студии (Минск) → UTC; иначе push «за сутки» съезжает на offset
+  const visitAt = wallClockToUtcMs(date, time, studioTz(env))
   if (!Number.isFinite(visitAt)) return json({ error: 'bad date' }, 400)
 
   // клиентский токен — чтобы только этот браузер мог снять своё напоминание

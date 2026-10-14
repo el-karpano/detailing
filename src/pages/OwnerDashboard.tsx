@@ -12,12 +12,13 @@ import {
   updateBooking,
 } from '../data/store'
 import { buildSlots, bookingStats } from '../lib/booking'
+import { localIsoDate } from '../lib/dates'
 import { formatMoney } from '../lib/money'
 import { useStoreTick } from '../lib/useStoreTick'
 import type { Booking, BookingStatus } from '../types'
 
 function todayIso() {
-  return new Date().toISOString().slice(0, 10)
+  return localIsoDate()
 }
 
 function PhoneLink({ phone }: { phone: string }) {
@@ -82,7 +83,7 @@ export default function OwnerDashboard() {
   const week = useMemo(() => {
     const from = new Date()
     from.setDate(from.getDate() - 7)
-    const fromIso = from.toISOString().slice(0, 10)
+    const fromIso = localIsoDate(from)
     return bookings.filter((b) => b.date >= fromIso && b.status !== 'cancelled')
   }, [bookings])
 
@@ -91,8 +92,9 @@ export default function OwnerDashboard() {
     return null
   }
 
-  function changeStatus(id: string, status: BookingStatus) {
-    updateBooking(id, { status })
+  async function changeStatus(id: string, status: BookingStatus) {
+    const ok = await updateBooking(id, { status })
+    if (!ok) alert('Не удалось изменить статус на сервере')
   }
 
   return (
@@ -332,8 +334,10 @@ export function OwnerBookingRow({
               if (s === 'cancelled' && !confirm('Отменить запись?')) return
               if (onStatus) onStatus(booking.id, s)
               else {
-                updateBooking(booking.id, { status: s })
-                onChange()
+                void updateBooking(booking.id, { status: s }).then((ok) => {
+                  if (!ok) alert('Не удалось изменить статус на сервере')
+                  onChange()
+                })
               }
             }}
           >
@@ -347,8 +351,10 @@ export function OwnerBookingRow({
           onClick={() => {
             const v = prompt('Оплата', String(booking.paid))
             if (v == null) return
-            updateBooking(booking.id, { paid: Number(v) || 0 })
-            onChange()
+            void updateBooking(booking.id, { paid: Number(v) || 0 }).then((ok) => {
+              if (!ok) alert('Не удалось сохранить оплату')
+              onChange()
+            })
           }}
         >
           Оплата
@@ -365,8 +371,10 @@ export function OwnerBookingRow({
           }}
           onClick={() => {
             if (!confirm(`Удалить запись ${booking.clientName} ${booking.date} ${booking.time}?`)) return
-            deleteBooking(booking.id)
-            onChange()
+            void deleteBooking(booking.id).then((ok) => {
+              if (!ok) alert('Не удалось удалить запись на сервере')
+              onChange()
+            })
           }}
         >
           Удалить

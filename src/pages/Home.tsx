@@ -1,6 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { CLIENT_BRAND } from '../data/defaults'
 import { getMyBookings, getStudio } from '../data/store'
+import { formatMoney, formatServicePrice } from '../lib/money'
 import { useInstall } from '../lib/pwaInstall'
+import { useStoreTick } from '../lib/useStoreTick'
 
 function formatDuration(min: number) {
   if (min >= 480 && min % 480 === 0) return `${min / 480} д`
@@ -8,17 +11,14 @@ function formatDuration(min: number) {
   return `${Math.floor(min / 60)} ч ${min % 60} мин`
 }
 
-function formatPrice(price: number) {
-  return price >= 12000 ? `от ${price.toLocaleString('ru-RU')} ₽` : `${price.toLocaleString('ru-RU')} ₽`
-}
-
 export default function Home() {
+  useStoreTick()
   const studio = getStudio()
   const nav = useNavigate()
   const install = useInstall()
   const bookings = getMyBookings()
   const active = studio.services.filter((s) => s.active)
-  const minPrice = Math.min(...active.map((s) => s.price))
+  const minPrice = active.length ? Math.min(...active.map((s) => s.price)) : 0
 
   return (
     <main className="safe-bottom shell" style={{ paddingTop: 'var(--s5)' }}>
@@ -50,7 +50,7 @@ export default function Home() {
           <div className="hero-stat-label">бокса в работе</div>
         </div>
         <div className="hero-stat wide">
-          <div className="hero-stat-value">от {minPrice.toLocaleString('ru-RU')} ₽</div>
+          <div className="hero-stat-value">от {formatMoney(minPrice)}</div>
           <div className="hero-stat-label">за услугу</div>
         </div>
       </div>
@@ -74,7 +74,7 @@ export default function Home() {
             </div>
             <div>
               <div className="service-row-price">
-                {formatPrice(s.price)}
+                {formatServicePrice(s.price, s.priceFrom)}
                 <span aria-hidden>↗</span>
               </div>
               <div className="service-row-meta" style={{ textAlign: 'right', marginTop: 4 }}>
@@ -148,10 +148,19 @@ export default function Home() {
           {studio.workHours} · {studio.weekends}
         </div>
         <div style={{ display: 'flex', gap: 'var(--s2)', marginTop: 'var(--s4)' }}>
-          <a className="button button-secondary" href="https://yandex.ru/maps/?text=Москва" target="_blank" rel="noreferrer">
+          <a
+            className="button button-secondary"
+            href={`https://yandex.ru/maps/?text=${encodeURIComponent(studio.address || studio.name)}`}
+            target="_blank"
+            rel="noreferrer"
+          >
             Маршрут ↗
           </a>
-          <a className="button button-secondary icon-button" href="tel:+79990000000" aria-label="Позвонить в студию">
+          <a
+            className="button button-secondary icon-button"
+            href={`tel:${studio.phone.replace(/[^\d+]/g, '')}`}
+            aria-label={`Позвонить в студию ${studio.phone}`}
+          >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M6 4h3l2 5-2 1c1 2 3 4 5 5l1-2 5 2v3c0 1-1 2-2 2C10 20 4 14 4 6c0-1 1-2 2-2Z" />
             </svg>
@@ -163,9 +172,9 @@ export default function Home() {
         <div className="card install-card" style={{ marginTop: 'var(--s8)', padding: 'var(--s6)' }}>
           <div className="ocean-content install-content">
             <div style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'center' }}>
-              <img src="/assets/logo.svg" alt="Логотип SGX" className="brand-logo install-app-icon" />
+              <img src={studio.logoUrl} alt={`Логотип ${CLIENT_BRAND.shortName}`} className="brand-logo install-app-icon" />
               <div>
-                <div style={{ fontWeight: 700, fontSize: 15 }}>SGX</div>
+                <div style={{ fontWeight: 700, fontSize: 15 }}>{CLIENT_BRAND.shortName}</div>
                 <div className="muted small">Приложение студии</div>
               </div>
             </div>

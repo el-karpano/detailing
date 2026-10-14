@@ -1,4 +1,7 @@
 import { NavLink, Outlet, useLocation, Link } from 'react-router-dom'
+import { CLIENT_BRAND } from '../data/defaults'
+import { getStudio } from '../data/store'
+import { useStoreTick } from '../lib/useStoreTick'
 
 const links = [
   { to: '/', label: 'Главная', icon: 'M4 10.5 12 4l8 6.5V20h-5v-6H10v6H4v-9.5Z' },
@@ -7,16 +10,24 @@ const links = [
 ]
 
 export default function Layout() {
+  useStoreTick()
+  const studio = getStudio()
   const loc = useLocation()
-  const isOwner = loc.pathname.startsWith('/owner')
-  const hideNav = isOwner || loc.pathname.startsWith('/install') || loc.pathname.startsWith('/account')
+  const path = loc.pathname
+  const isOwner = path.startsWith('/owner')
+  const isAssistant = path.startsWith('/assistant')
+  const hideNav = isOwner || isAssistant || path.startsWith('/install') || path.startsWith('/account')
 
   return (
     <div className="min-h-screen">
       <header className="topbar">
         <Link to="/" className="wordmark">
-          <img className="brand-logo" src="/assets/logo-header.svg" alt="Логотип SGX" />
-          <span>SGX</span>
+          <img
+            className="brand-logo"
+            src={studio.logoHeaderUrl || studio.logoUrl}
+            alt={`Логотип ${CLIENT_BRAND.shortName}`}
+          />
+          <span>{CLIENT_BRAND.shortName}</span>
         </Link>
         <Link to="/account" className="button button-ghost icon-button" aria-label="Мой профиль">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -28,12 +39,14 @@ export default function Layout() {
 
       <Outlet />
 
-      <footer className="footer shell">
-        <span className="muted">SGX</span>
-        <a href="tel:+79990000000" className="text-link">
-          Связаться <span aria-hidden>↗</span>
-        </a>
-      </footer>
+      {!isOwner && (
+        <footer className="footer">
+          <span className="muted">{CLIENT_BRAND.shortName}</span>
+          <a href={`tel:${studio.phone.replace(/[^\d+]/g, '')}`} className="text-link">
+            Связаться <span aria-hidden>↗</span>
+          </a>
+        </footer>
+      )}
 
       {!hideNav && (
         <nav className="bottom-nav" aria-label="Основная навигация">
@@ -53,7 +66,7 @@ export default function Layout() {
         </nav>
       )}
 
-      {!hideNav && (
+      {!hideNav && !isAssistant && (
         <Link to="/assistant" className="chat-launcher" aria-label="Открыть помощника">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2l1.2 3.5L17 7l-3.5 1.2L12 12l-1.2-3.8L7 7l3.8-1.5L12 2Zm6 9 .8 2.2L21 14l-2.2.8L18 17l-.8-2.2L15 14l2.2-.8L18 11ZM6 14l.9 2.6L9.5 18l-2.6.9L6 21.5l-.9-2.6L2.5 18l2.6-.9L6 14Z" />

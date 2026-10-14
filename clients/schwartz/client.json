@@ -1,0 +1,162 @@
+{
+  "slug": "schwartz",
+  "workerName": "detailing-schwartz",
+  "databaseName": "detailing-schwartz-db",
+  "brand": {
+    "name": "SCHWARTZ DETAILING",
+    "shortName": "SCHWARTZ",
+    "currency": "Br",
+    "description": "Детейлинг-студия в Гомеле — плёнка, полировка, керамика, свет и восстановление салона"
+  },
+  "studio": {
+    "name": "SCHWARTZ DETAILING",
+    "tagline": "Детейлинг, защита и свет — в Гомеле на Дорожной, 8",
+    "description": "SCHWARTZ DETAILING — детейлинг-студия в Гомеле. Бронепленка, полировка, керамическое покрытие, автосвет, химчистка и реставрация салона. Работаем по записи, бережно к вашему автомобилю.",
+    "address": "Гомель, ул. Дорожная, 8",
+    "phone": "+375 33 375-01-51",
+    "workHours": "09:00–18:00",
+    "weekends": "сб–вс выходной",
+    "logoUrl": "/assets/logo.jpg",
+    "logoHeaderUrl": "/assets/logo-header.jpg",
+    "heroImageUrl": "/assets/hero-car-blue.jpg",
+    "bays": 3,
+    "prepMin": 30,
+    "cancelPolicy": "Отмена не позднее чем за 12 часов до визита.",
+    "services": [
+      {
+        "id": "svc-headlight-polish",
+        "title": "Полировка фар",
+        "description": "Лёгкая полировка убирает царапины и сколы, глубокая абразивная — даже серьёзные повреждения оптики",
+        "price": 50,
+        "durationMin": 60,
+        "active": true
+      },
+      {
+        "id": "svc-glass-polish",
+        "title": "Полировка стёкол",
+        "description": "Восстанавливаем прозрачность стёкол и убираем мелкие царапины и налёт",
+        "price": 50,
+        "durationMin": 60,
+        "active": true
+      },
+      {
+        "id": "svc-plastic",
+        "title": "Пайка пластика",
+        "description": "Восстанавливаем бампера, панели и другие пластиковые детали без полной замены",
+        "price": 20,
+        "priceFrom": true,
+        "durationMin": 90,
+        "active": true
+      },
+      {
+        "id": "svc-pdr",
+        "title": "Удаление вмятин (PDR)",
+        "description": "Беспокрасочное удаление вмятин после града, ударов и других механических повреждений",
+        "price": 20,
+        "priceFrom": true,
+        "durationMin": 90,
+        "active": true
+      },
+      {
+        "id": "svc-tint",
+        "title": "Тонировка стёкол",
+        "description": "Тонировка задней полусферы автомобиля плёнкой",
+        "price": 350,
+        "durationMin": 180,
+        "active": true
+      },
+      {
+        "id": "svc-leather",
+        "title": "Реставрация салона",
+        "description": "Покраска и перешив руля, подлокотника и кожаных сидений",
+        "price": 250,
+        "priceFrom": true,
+        "durationMin": 360,
+        "active": true
+      },
+      {
+        "id": "svc-chem",
+        "title": "Химчистка салона",
+        "description": "Глубокая очистка ткани, кожи и поверхностей — убираем загрязнения, запахи, пятна и аллергены",
+        "price": 350,
+        "priceFrom": true,
+        "durationMin": 480,
+        "active": true
+      },
+      {
+        "id": "svc-polish",
+        "title": "Полировка кузова",
+        "description": "Убираем царапины, притёртости и битумные пятна. Кузову — глубокий блеск и насыщенность цвета",
+        "price": 320,
+        "priceFrom": true,
+        "durationMin": 480,
+        "active": true
+      },
+      {
+        "id": "svc-film",
+        "title": "Оклейка бронеплёнкой",
+        "description": "Полиуретановая антигравийная защита кузова или отдельных элементов. Гарантия на установку и покрытие",
+        "price": 60,
+        "priceFrom": true,
+        "durationMin": 480,
+        "active": true
+      },
+      {
+        "id": "svc-ceramic",
+        "title": "Керамическое покрытие",
+        "description": "Защита кузова с глубоким блеском и гидрофобным эффектом — уход проще, цвет насыщеннее",
+        "price": 500,
+        "priceFrom": true,
+        "durationMin": 480,
+        "active": true
+      },
+      {
+        "id": "svc-biled",
+        "title": "Установка Bi-Led линз",
+        "description": "Комплекс для идеального света: модули, шлифовка и полировка оптики, оклейка бронеплёнкой",
+        "price": 1000,
+        "priceFrom": true,
+        "durationMin": 480,
+        "active": true
+      }
+    ],
+    "photos": [
+      {
+        "id": "ph-1",
+        "title": "Детали кузова",
+        "caption": "Глубина и блеск после комплексного ухода",
+        "imageUrl": "/assets/car2.jpg"
+      },
+      {
+        "id": "ph-2",
+        "title": "Капот и оптика — пример",
+        "caption": "Полировка и защита лака",
+        "imageUrl": "/assets/car3.jpg"
+      },
+      {
+        "id": "ph-3",
+        "title": "Общий вид — пример",
+        "caption": "Керамическое покрытие",
+        "imageUrl": "/assets/car4.jpg"
+      }
+    ],
+    "infoCards": [
+      {
+        "id": "card-1",
+        "title": "Запись с ИИ",
+        "body": "Подберёт услугу для автомобиля и покажет актуальное время"
+      },
+      {
+        "id": "card-2",
+        "title": "Плёнка, керамика, свет",
+        "body": "Бронезащита, керамическое покрытие и установка Bi-Led линз"
+      },
+      {
+        "id": "card-3",
+        "title": "Студия всегда под рукой",
+        "body": "Записывайтесь за несколько касаний, без поиска ссылки и звонков"
+      }
+    ]
+  },
+  "databaseId": "bb2701db-dcca-4511-b6f6-93df4bb9738c"
+}

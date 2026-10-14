@@ -1,0 +1,101 @@
+{
+  "slug": "sgx",
+  "workerName": "detailing-main",
+  "databaseName": "detailing-main-db",
+  "brand": {
+    "name": "SGX Detailing",
+    "shortName": "SGX",
+    "currency": "Br",
+    "description": "Детейлинг, который возвращает кузову глубину, а салону — чистоту"
+  },
+  "studio": {
+    "name": "SGX Detailing",
+    "tagline": "Детейлинг, который возвращает кузову глубину, а салону — чистоту",
+    "description": "Детейлинг, который возвращает кузову глубину, а салону — чистоту. Работаем по записи, бережно к вашему автомобилю.",
+    "address": "Минск, ул. Калиновского, 12",
+    "phone": "+375 29 123-45-67",
+    "workHours": "09:00–20:00",
+    "weekends": "по времени студии",
+    "logoUrl": "/assets/logo.svg",
+    "logoHeaderUrl": "/assets/logo-header.svg",
+    "heroImageUrl": "/assets/hero-car-blue.jpg",
+    "bays": 3,
+    "prepMin": 30,
+    "cancelPolicy": "Отмена не позднее чем за 12 часов до визита.",
+    "services": [
+      {
+        "id": "svc-wash",
+        "title": "Комплексная мойка",
+        "description": "Кузов, диски, стёкла и аккуратная уборка салона — за один заезд",
+        "price": 45,
+        "durationMin": 120,
+        "active": true
+      },
+      {
+        "id": "svc-interior",
+        "title": "Химчистка салона",
+        "description": "Глубокая очистка ткани, кожи и поверхностей, чтобы вернуть салону свежесть",
+        "price": 250,
+        "priceFrom": true,
+        "durationMin": 480,
+        "active": true
+      },
+      {
+        "id": "svc-polish",
+        "title": "Полировка кузова",
+        "description": "Убираем мелкие царапины и возвращаем кузову глубокий блеск",
+        "price": 300,
+        "priceFrom": true,
+        "durationMin": 480,
+        "active": true
+      },
+      {
+        "id": "svc-ceramic",
+        "title": "Керамическое покрытие",
+        "description": "Защита кузова с гидрофобным эффектом — уход проще, блеск дольше",
+        "price": 550,
+        "priceFrom": true,
+        "durationMin": 960,
+        "active": true
+      }
+    ],
+    "photos": [
+      {
+        "id": "ph-1",
+        "title": "Детали кузова",
+        "caption": "Глубина и блеск после комплексного ухода",
+        "imageUrl": "/assets/car2.jpg"
+      },
+      {
+        "id": "ph-2",
+        "title": "Капот и оптика — пример",
+        "caption": "Полировка и защита лака",
+        "imageUrl": "/assets/car3.jpg"
+      },
+      {
+        "id": "ph-3",
+        "title": "Общий вид — пример",
+        "caption": "Керамическое покрытие",
+        "imageUrl": "/assets/car4.jpg"
+      }
+    ],
+    "infoCards": [
+      {
+        "id": "card-1",
+        "title": "Запись с ИИ",
+        "body": "Подберёт услугу для автомобиля и покажет актуальное время"
+      },
+      {
+        "id": "card-2",
+        "title": "3 бокса в работе",
+        "body": "Принимаем несколько машин без очередей и ожидания"
+      },
+      {
+        "id": "card-3",
+        "title": "Студия всегда под рукой",
+        "body": "Записывайтесь за несколько касаний, без поиска ссылки и звонков"
+      }
+    ]
+  },
+  "databaseId": "451b37b8-1e7b-4301-aaef-e74605af8312"
+}

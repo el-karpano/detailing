@@ -1,26 +1,89 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { addBooking, currentOwner, getBookings, getStudio, logout, updateBooking } from '../data/store'
-import { bookingStats } from '../lib/booking'
+import {
+  addBooking,
+  currentOwner,
+  deleteBooking,
+  getBookings,
+  getSchedule,
+  getStudio,
+  logout,
+  syncBookingsFromServer,
+  updateBooking,
+} from '../data/store'
+import { buildSlots, bookingStats } from '../lib/booking'
+import { formatMoney } from '../lib/money'
+import { useStoreTick } from '../lib/useStoreTick'
 import type { Booking, BookingStatus } from '../types'
+
+function todayIso() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function PhoneLink({ phone }: { phone: string }) {
+  const digits = phone.replace(/[^\d+]/g, '')
+  if (!digits) return <span className="muted small">Телефон не указан</span>
+  return (
+    <a
+      href={`tel:${digits}`}
+      className="text-link small"
+      style={{ fontVariantNumeric: 'tabular-nums' }}
+      aria-label={`Позвонить клиенту ${phone}`}
+    >
+      {phone}
+    </a>
+  )
+}
+
+function fmtDate(iso: string) {
+  const parts = iso.split('-').map(Number)
+  const d = parts[2]
+  const m = parts[1]
+  const months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
+  return `${d} ${months[(m || 1) - 1]}`
+}
 
 export default function OwnerDashboard() {
   const nav = useNavigate()
   const owner = currentOwner()
   const studio = getStudio()
-  const [question, setQuestion] = useState('')
-  const [answer, setAnswer] = useState('')
+  const tick = useStoreTick()
+  const [syncing, setSyncing] = useState(false)
+  const [showAdd, setShowAdd] = useState(false)
 
-  const bookings = getBookings(studio.id).sort((a, b) =>
-    (a.date + a.time).localeCompare(b.date + b.time),
+  // подтягиваем записи с сервера при открытии
+  useEffect(() => {
+    let alive = true
+    setSyncing(true)
+    void syncBookingsFromServer().finally(() => {
+      if (alive) setSyncing(false)
+    })
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  const bookings = useMemo(
+    () =>
+      getBookings(studio.id)
+        .slice()
+        .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)),
+    [studio.id, tick],
   )
 
   const stats = useMemo(() => bookingStats(bookings), [bookings])
+  const today = todayIso()
+  const todayList = bookings.filter((b) => b.date === today && b.status !== 'cancelled')
+  const upcoming = bookings.filter(
+    (b) => b.status !== 'cancelled' && b.status !== 'done' && b.date + b.time >= today + '00:00',
+  )
+  const pending = bookings.filter((b) => b.status === 'pending' && b.date >= today)
+
   const week = useMemo(() => {
-    const now = new Date()
-    const from = new Date(now)
-    from.setDate(now.getDate() - 7)
-    return bookings.filter((b) => b.date >= from.toISOString().slice(0, 10) && b.status !== 'cancelled')
+    const from = new Date()
+    from.setDate(from.getDate() - 7)
+    const fromIso = from.toISOString().slice(0, 10)
+    return bookings.filter((b) => b.date >= fromIso && b.status !== 'cancelled')
   }, [bookings])
 
   if (!owner) {
@@ -28,226 +91,261 @@ export default function OwnerDashboard() {
     return null
   }
 
-  const today = new Date().toISOString().slice(0, 10)
-  const todayList = bookings.filter((b) => b.date === today && b.status !== 'cancelled')
-
-  function ask(q: string) {
-    const t = q.toLowerCase()
-    if (/(завтр)/.test(t)) {
-      const d = new Date()
-      d.setDate(d.getDate() + 1)
-      const iso = d.toISOString().slice(0, 10)
-      const list = bookings.filter((b) => b.date === iso && b.status !== 'cancelled')
-      setAnswer(
-        list.length
-          ? `Завтра ${list.length} запись(и):\n${list.map((b) => `• ${b.time} ${b.serviceName} — ${b.clientName} (${b.car})`).join('\n')}`
-          : 'Завтра записей нет.',
-      )
-      return
-    }
-    if (/(машин|запис|недел)/.test(t)) {
-      setAnswer(`За 7 дней: ${week.length} машин(ы). Из них завершено: ${week.filter((b) => b.status === 'done').length}.`)
-      return
-    }
-    if (/(деньг|выруч|оплат|получен)/.test(t)) {
-      setAnswer(
-        `Фактически получено: ${stats.money.toLocaleString('ru-RU')} ₽. Запланировано по активным записям: ${stats.planned.toLocaleString('ru-RU')} ₽.`,
-      )
-      return
-    }
-    setAnswer('Могу ответить: «Что у меня завтра?», «Сколько машин было на неделе?», «Сколько денег получено?»')
+  function changeStatus(id: string, status: BookingStatus) {
+    updateBooking(id, { status })
   }
 
   return (
-    <main className="mx-auto max-w-lg space-y-5 px-5 pt-8 pb-10">
-      <header className="flex items-start justify-between">
+    <main className="safe-bottom shell" style={{ paddingTop: 'var(--s5)', display: 'flex', flexDirection: 'column', gap: 'var(--s5)' }}>
+      <header style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 'var(--s3)' }}>
         <div>
-          <h1 className="text-2xl font-bold">Кабинет</h1>
-          <p className="mt-1 text-sm text-white/60">{studio.name}</p>
+          <h1 className="h1">Кабинет</h1>
+          <p className="muted" style={{ marginTop: 4 }}>
+            {studio.name}
+            {syncing ? ' · обновляем…' : ''}
+          </p>
         </div>
-        <button
-          className="glass-btn rounded-xl px-3 py-2 text-xs"
-          onClick={() => {
-            logout()
-            nav('/owner')
-          }}
-        >
-          Выйти
-        </button>
+        <div style={{ display: 'flex', gap: 'var(--s2)' }}>
+          <button
+            type="button"
+            className="button button-ghost"
+            style={{ minHeight: 40, padding: '0 12px', fontSize: 13 }}
+            onClick={() => {
+              setSyncing(true)
+              void syncBookingsFromServer().finally(() => setSyncing(false))
+            }}
+          >
+            ⟳
+          </button>
+          <button
+            type="button"
+            className="button button-ghost"
+            style={{ minHeight: 40, padding: '0 12px', fontSize: 13 }}
+            onClick={() => {
+              logout()
+              nav('/owner')
+            }}
+          >
+            Выйти
+          </button>
+        </div>
       </header>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--s2)' }}>
         <Stat label="Сегодня" value={String(todayList.length)} />
-        <Stat label="За 7 дней" value={String(week.length)} />
-        <Stat label="Получено" value={`${stats.money.toLocaleString('ru-RU')} ₽`} />
+        <Stat label="Новые" value={String(pending.length)} />
+        <Stat label="Получено" value={formatMoney(stats.money)} />
       </div>
 
-      <section className="glass rounded-2xl p-4">
-        <h2 className="font-semibold">Помощник владельца</h2>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {['Что у меня завтра?', 'Сколько машин было на неделе?', 'Сколько денег получено?'].map(
-            (q) => (
-              <button
-                key={q}
-                type="button"
-                onClick={() => {
-                  setQuestion(q)
-                  ask(q)
+      {/* Расписание дня */}
+      <section>
+        <h2 className="h2">Сегодня · {fmtDate(today)}</h2>
+        <div style={{ marginTop: 'var(--s3)', display: 'flex', flexDirection: 'column', gap: 'var(--s2)' }}>
+          {todayList.length === 0 && <p className="muted">Записей на сегодня нет</p>}
+          {todayList.map((b) => (
+            <div
+              key={b.id}
+              style={{
+                display: 'flex',
+                gap: 'var(--s3)',
+                alignItems: 'center',
+                background: 'var(--raised)',
+                border: '1px solid var(--stroke)',
+                borderRadius: 16,
+                padding: '12px 14px',
+              }}
+            >
+              <div
+                style={{
+                  fontVariantNumeric: 'tabular-nums',
+                  fontWeight: 700,
+                  fontSize: 15,
+                  minWidth: 48,
+                  color: b.status === 'done' ? 'var(--secondary)' : 'var(--color-accent)',
                 }}
-                className="glass-btn rounded-full px-3 py-1.5 text-xs"
               >
-                {q}
-              </button>
-            ),
-          )}
+                {b.time}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>{b.serviceName}</div>
+                <div className="muted small">
+                  {b.clientName} · {b.car}
+                </div>
+                <div style={{ marginTop: 2 }}>
+                  <PhoneLink phone={b.phone} />
+                </div>
+              </div>
+              <StatusBadge status={b.status} />
+            </div>
+          ))}
         </div>
-        <form
-          className="mt-3 flex gap-2"
-          onSubmit={(e) => {
-            e.preventDefault()
-            ask(question)
-          }}
-        >
-          <input
-            className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-[#4690FF]"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Вопрос по записям и оплатам"
-          />
-          <button className="accent rounded-xl px-4 py-2 text-sm">Спросить</button>
-        </form>
-        {answer && (
-          <p className="mt-3 whitespace-pre-line rounded-xl bg-white/5 p-3 text-sm text-white/85">
-            {answer}
-          </p>
-        )}
       </section>
 
+      {/* Ожидают подтверждения */}
+      {pending.length > 0 && (
+        <section>
+          <h2 className="h2">Ждут подтверждения</h2>
+          <div style={{ marginTop: 'var(--s3)', display: 'flex', flexDirection: 'column', gap: 'var(--s2)' }}>
+            {pending.slice(0, 5).map((b) => (
+              <OwnerBookingRow key={b.id} booking={b} onChange={() => {}} onStatus={changeStatus} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Ближайшие */}
       <section>
-        <div className="flex items-center justify-between">
-          <h2 className="font-semibold">Ближайшие записи</h2>
-          <Link to="/owner/bookings" className="text-sm text-[#4690FF]">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 className="h2">Ближайшие записи</h2>
+          <Link to="/owner/bookings" className="text-link" style={{ fontSize: 13 }}>
             Все →
           </Link>
         </div>
-        <div className="mt-3 space-y-2">
-          {bookings
-            .filter((b) => b.status !== 'cancelled' && b.status !== 'done')
-            .slice(0, 6)
-            .map((b) => (
-              <OwnerBookingRow key={b.id} booking={b} onChange={() => nav(0)} />
-            ))}
-          {bookings.filter((b) => b.status !== 'cancelled' && b.status !== 'done').length === 0 && (
-            <p className="text-sm text-white/50">Активных записей нет</p>
-          )}
+        <div style={{ marginTop: 'var(--s3)', display: 'flex', flexDirection: 'column', gap: 'var(--s2)' }}>
+          {upcoming.filter((b) => b.date !== today || !todayList.some((t) => t.id === b.id)).slice(0, 6).map((b) => (
+            <OwnerBookingRow key={b.id} booking={b} onChange={() => {}} onStatus={changeStatus} />
+          ))}
+          {upcoming.length === 0 && <p className="muted">Активных записей нет</p>}
         </div>
       </section>
 
-      <button
-        className="glass-btn w-full rounded-2xl px-4 py-3 text-sm"
-        onClick={() => {
-          const name = prompt('Имя клиента')
-          if (!name) return
-          const phone = prompt('Телефон') ?? ''
-          const date = prompt('Дата (ГГГГ-ММ-ДД)', today) ?? today
-          const time = prompt('Время (ЧЧ:ММ)', '12:00') ?? '12:00'
-          const svc = studio.services[0]
-          const r = addBooking({
-            id: crypto.randomUUID(),
-            studioId: studio.id,
-            serviceId: svc.id,
-            serviceName: svc.title,
-            clientName: name,
-            phone,
-            car: prompt('Автомобиль') ?? '—',
-            date,
-            time,
-            bay: 1,
-            status: 'accepted',
-            price: svc.price,
-            paid: 0,
-            createdAt: new Date().toISOString(),
-            reminderEnabled: false,
-          })
-          if (!r.ok) alert(r.error)
-          else nav(0)
-        }}
-      >
-        + Добавить запись вручную
+      <button type="button" className="button button-primary" onClick={() => setShowAdd((v) => !v)}>
+        {showAdd ? 'Скрыть форму' : '+ Добавить запись вручную'}
       </button>
 
-      <nav className="grid grid-cols-2 gap-2">
-        <Link to="/owner/bookings" className="glass-btn rounded-2xl px-4 py-3 text-center text-sm">
+      {showAdd && (
+        <AddBookingForm
+          onDone={() => {
+            setShowAdd(false)
+          }}
+        />
+      )}
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--s2)' }}>
+        <Link to="/owner/bookings" className="button button-secondary" style={{ width: '100%' }}>
           Записи и оплаты
         </Link>
-        <Link to="/owner/settings" className="glass-btn rounded-2xl px-4 py-3 text-center text-sm">
+        <Link to="/owner/settings" className="button button-secondary" style={{ width: '100%' }}>
           Настройки студии
         </Link>
-      </nav>
+      </div>
+
+      <p className="muted small">За неделю: {week.length} машин · завершено {week.filter((b) => b.status === 'done').length}</p>
     </main>
   )
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="glass rounded-2xl p-3">
-      <div className="text-xs text-white/55">{label}</div>
-      <div className="mt-1 text-lg font-semibold">{value}</div>
+    <div
+      style={{
+        background: 'var(--raised)',
+        border: '1px solid var(--stroke)',
+        borderRadius: 16,
+        padding: '12px 14px',
+      }}
+    >
+      <div className="muted small">{label}</div>
+      <div style={{ marginTop: 4, fontSize: 18, fontWeight: 700 }}>{value}</div>
     </div>
+  )
+}
+
+export function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; color: string }> = {
+    pending: { label: 'Новая', color: '#eab308' },
+    accepted: { label: 'Принята', color: 'var(--color-accent)' },
+    ready: { label: 'Готова', color: '#34d399' },
+    done: { label: 'Завершена', color: 'var(--secondary)' },
+    cancelled: { label: 'Отмена', color: '#f87171' },
+  }
+  const s = map[status] ?? map.pending
+  return (
+    <span
+      style={{
+        fontSize: 11,
+        padding: '3px 8px',
+        borderRadius: 999,
+        color: s.color,
+        background: 'color-mix(in srgb, currentColor 12%, transparent)',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {s.label}
+    </span>
   )
 }
 
 export function OwnerBookingRow({
   booking,
   onChange,
+  onStatus,
 }: {
   booking: Booking
   onChange: () => void
+  onStatus?: (id: string, status: BookingStatus) => void
 }) {
   return (
-    <div className="glass rounded-2xl p-3">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <div className="text-sm font-semibold">
+    <div
+      style={{
+        background: 'var(--raised)',
+        border: '1px solid var(--stroke)',
+        borderRadius: 16,
+        padding: 'var(--s3) 14px',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--s2)', alignItems: 'flex-start' }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontWeight: 600, fontSize: 14 }}>
             {booking.time} · {booking.serviceName}
           </div>
-          <div className="text-xs text-white/60">
-            {booking.date} · бокс {booking.bay} · {booking.clientName} · {booking.car}
+          <div className="muted small">
+            {fmtDate(booking.date)} · бокс {booking.bay} · {booking.clientName} · {booking.car}
+          </div>
+          <div style={{ marginTop: 2 }}>
+            <PhoneLink phone={booking.phone} />
           </div>
         </div>
-        <div className="text-right text-sm font-semibold text-[#4690FF]">
-          {booking.price.toLocaleString('ru-RU')} ₽
-          <div className="text-[11px] text-white/50">опл. {booking.paid.toLocaleString('ru-RU')} ₽</div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ color: 'var(--color-accent)', fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap' }}>
+            {formatMoney(booking.price)}
+          </div>
+          <div className="muted small">опл. {formatMoney(booking.paid)}</div>
         </div>
       </div>
-      <div className="mt-2 flex flex-wrap gap-1.5">
+      <div style={{ marginTop: 'var(--s2)', display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+        <StatusBadge status={booking.status} />
         {(
           [
-            ['accepted', 'Принята'],
+            ['accepted', 'Принять'],
             ['ready', 'Готова'],
-            ['done', 'Завершена'],
+            ['done', 'Завершить'],
             ['cancelled', 'Отмена'],
           ] as [BookingStatus, string][]
         ).map(([s, label]) => (
           <button
             key={s}
             type="button"
+            className="button button-ghost"
+            style={{ minHeight: 32, padding: '0 10px', fontSize: 11, borderRadius: 10 }}
             onClick={() => {
-              updateBooking(booking.id, { status: s })
-              onChange()
+              if (s === 'cancelled' && !confirm('Отменить запись?')) return
+              if (onStatus) onStatus(booking.id, s)
+              else {
+                updateBooking(booking.id, { status: s })
+                onChange()
+              }
             }}
-            className={`rounded-lg px-2 py-1 text-[11px] ${
-              booking.status === s ? 'accent' : 'glass-btn'
-            }`}
           >
             {label}
           </button>
         ))}
         <button
           type="button"
-          className="glass-btn rounded-lg px-2 py-1 text-[11px]"
+          className="button button-ghost"
+          style={{ minHeight: 32, padding: '0 10px', fontSize: 11, borderRadius: 10 }}
           onClick={() => {
-            const v = prompt('Оплата, ₽', String(booking.paid))
+            const v = prompt('Оплата', String(booking.paid))
             if (v == null) return
             updateBooking(booking.id, { paid: Number(v) || 0 })
             onChange()
@@ -255,7 +353,139 @@ export function OwnerBookingRow({
         >
           Оплата
         </button>
+        <button
+          type="button"
+          className="button button-ghost"
+          style={{
+            minHeight: 32,
+            padding: '0 10px',
+            fontSize: 11,
+            borderRadius: 10,
+            color: '#f87171',
+          }}
+          onClick={() => {
+            if (!confirm(`Удалить запись ${booking.clientName} ${booking.date} ${booking.time}?`)) return
+            deleteBooking(booking.id)
+            onChange()
+          }}
+        >
+          Удалить
+        </button>
       </div>
     </div>
+  )
+}
+
+function AddBookingForm({ onDone }: { onDone: () => void }) {
+  const studio = getStudio()
+  const schedule = getSchedule()
+  const bookings = getBookings(studio.id)
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [car, setCar] = useState('')
+  const [serviceId, setServiceId] = useState(studio.services[0]?.id ?? '')
+  const [date, setDate] = useState(todayIso())
+  const [time, setTime] = useState('12:00')
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const service = studio.services.find((s) => s.id === serviceId)
+  const freeSlots = useMemo(() => {
+    if (!service || !date) return []
+    return buildSlots(studio, schedule, bookings, service, date).filter((s) => s.available)
+  }, [service, date, studio, schedule, bookings])
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    if (!name.trim() || phone.trim().length < 6) {
+      setError('Укажите имя и телефон')
+      return
+    }
+    if (!service) {
+      setError('Выберите услугу')
+      return
+    }
+    setBusy(true)
+    const r = await addBooking({
+      id: crypto.randomUUID(),
+      studioId: studio.id,
+      serviceId: service.id,
+      serviceName: service.title,
+      clientName: name.trim(),
+      phone: phone.trim(),
+      car: car.trim() || '—',
+      date,
+      time,
+      bay: freeSlots.find((s) => s.time === time)?.bay ?? 1,
+      status: 'accepted',
+      price: service.price,
+      paid: 0,
+      createdAt: new Date().toISOString(),
+      reminderEnabled: false,
+    })
+    setBusy(false)
+    if (r.ok === false) {
+      setError(r.error)
+      return
+    }
+    onDone()
+  }
+
+  return (
+    <form
+      onSubmit={submit}
+      className="booking-card"
+      style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s3)', padding: 'var(--s4)' }}
+    >
+      <h3 style={{ fontWeight: 700, fontSize: 15 }}>Новая запись</h3>
+      <input className="input" placeholder="Имя клиента" value={name} onChange={(e) => setName(e.target.value)} required />
+      <input className="input" placeholder="Телефон" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+      <input className="input" placeholder="Автомобиль" value={car} onChange={(e) => setCar(e.target.value)} />
+      <select
+        className="input"
+        value={serviceId}
+        onChange={(e) => {
+          setServiceId(e.target.value)
+          setTime('')
+        }}
+      >
+        {studio.services.map((s) => (
+          <option key={s.id} value={s.id}>
+            {s.title} · {formatMoney(s.price)}
+          </option>
+        ))}
+      </select>
+      <input className="input" type="date" value={date} onChange={(e) => { setDate(e.target.value); setTime('') }} required />
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+        {freeSlots.length === 0 && (
+          <p className="muted small" style={{ gridColumn: '1 / -1' }}>
+            Нет свободных окон на эту дату
+          </p>
+        )}
+        {freeSlots.map((s) => (
+          <button
+            key={s.time}
+            type="button"
+            className={`button ${time === s.time ? 'button-primary' : 'button-ghost'}`}
+            style={{ minHeight: 36, fontSize: 12, padding: 0, justifyContent: 'center' }}
+            onClick={() => setTime(s.time)}
+          >
+            {s.time}
+          </button>
+        ))}
+      </div>
+
+      {error && (
+        <p role="alert" style={{ color: '#fca5a5', fontSize: 13 }}>
+          {error}
+        </p>
+      )}
+
+      <button type="submit" className="button button-primary" disabled={busy || !time}>
+        {busy ? 'Сохраняем…' : 'Создать запись'}
+      </button>
+    </form>
   )
 }

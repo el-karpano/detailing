@@ -1,97 +1,24 @@
 import type { Booking, DaySchedule, Service, Studio } from '../types'
+import { CLIENT_BRAND, CLIENT_SLUG, CLIENT_STUDIO, CLIENT_WORKER, DEFAULTS_REV } from './client-data'
+
+export { CLIENT_BRAND, CLIENT_SLUG, CLIENT_STUDIO, CLIENT_WORKER, DEFAULTS_REV }
 
 /** Поднять при изменении услуг/фото/текстов — перезальёт контент из кода в localStorage. */
-export const DEFAULTS_REV = 2
-
 export const DEFAULT_STUDIO: Studio = {
-  id: 'studio-main',
-  name: 'SGX Detailing',
-  tagline: 'Детейлинг, который возвращает кузову глубину, а салону — чистоту',
-  description:
-    'Детейлинг, который возвращает кузову глубину, а салону — чистоту. Работаем по записи, бережно к вашему автомобилю.',
-  address: 'Москва, Примерная улица, 12',
-  phone: '+7 (999) 000-00-00',
-  workHours: '09:00–17:00',
-  weekends: 'по времени студии',
-  logoUrl: '/assets/logo.svg',
-  heroImageUrl: '/assets/hero-car-blue.jpg',
-  bays: 3,
-  prepMin: 30,
-  cancelPolicy: 'Отмена не позднее чем за 12 часов до визита.',
-  services: [
-    {
-      id: 'svc-wash',
-      title: 'Комплексная мойка',
-      description: 'Кузов, диски, стёкла и аккуратная уборка салона — за один заезд',
-      price: 3500,
-      durationMin: 120,
-      active: true,
-    },
-    {
-      id: 'svc-interior',
-      title: 'Химчистка салона',
-      description: 'Глубокая очистка ткани, кожи и поверхностей, чтобы вернуть салону свежесть',
-      price: 12000,
-      durationMin: 480,
-      active: true,
-    },
-    {
-      id: 'svc-polish',
-      title: 'Полировка кузова',
-      description: 'Убираем мелкие царапины и возвращаем кузову глубокий блеск',
-      price: 18000,
-      durationMin: 480,
-      active: true,
-    },
-    {
-      id: 'svc-ceramic',
-      title: 'Керамическое покрытие',
-      description: 'Защита кузова с гидрофобным эффектом — уход проще, блеск дольше',
-      price: 25000,
-      durationMin: 960,
-      active: true,
-    },
-  ],
-  photos: [
-    {
-      id: 'ph-1',
-      title: 'Детали кузова',
-      caption: 'Глубина и блеск после комплексного ухода',
-      imageUrl: '/assets/car2.jpg',
-    },
-    {
-      id: 'ph-2',
-      title: 'Капот и оптика — пример',
-      caption: 'Полировка и защита лака',
-      imageUrl: '/assets/car3.jpg',
-    },
-    {
-      id: 'ph-3',
-      title: 'Общий вид — пример',
-      caption: 'Керамическое покрытие',
-      imageUrl: '/assets/car4.jpg',
-    },
-  ],
-  infoCards: [
-    {
-      id: 'card-1',
-      title: 'Запись с ИИ',
-      body: 'Подберёт услугу для автомобиля и покажет актуальное время',
-    },
-    {
-      id: 'card-2',
-      title: '3 бокса в работе',
-      body: 'Принимаем несколько машин без очередей и ожидания',
-    },
-    {
-      id: 'card-3',
-      title: 'Студия всегда под рукой',
-      body: 'Записывайтесь за несколько касаний, без поиска ссылки и звонков',
-    },
-  ],
+  ...(CLIENT_STUDIO as unknown as Studio),
+  id: `studio-${CLIENT_SLUG}`,
 }
 
-export function seedSchedule(days = 14): DaySchedule[] {
+function parseWorkHours(workHours?: string): { open: string; close: string } {
+  const m = String(workHours || '').match(/(\d{1,2}:\d{2})\s*[–—-]\s*(\d{1,2}:\d{2})/)
+  return {
+    open: m?.[1]?.padStart(5, '0') || '09:00',
+    close: m?.[2]?.padStart(5, '0') || '20:00',
+  }
+}
+
+export function seedSchedule(days = 60, workHours?: string): DaySchedule[] {
+  const { open, close } = parseWorkHours(workHours)
   const out: DaySchedule[] = []
   const now = new Date()
   for (let i = 0; i < days; i++) {
@@ -101,8 +28,8 @@ export function seedSchedule(days = 14): DaySchedule[] {
     const dow = d.getDay()
     out.push({
       date: iso,
-      open: '09:00',
-      close: '17:00',
+      open,
+      close,
       closed: dow === 0,
     })
   }
@@ -110,6 +37,7 @@ export function seedSchedule(days = 14): DaySchedule[] {
 }
 
 export function seedBookings(studioId: string, services: Service[]): Booking[] {
+  // Демо-записи только для локального превью (id seed-*), на сервер НЕ отправляются.
   const now = new Date()
   const tomorrow = new Date(now)
   tomorrow.setDate(now.getDate() + 1)
@@ -118,7 +46,7 @@ export function seedBookings(studioId: string, services: Service[]): Booking[] {
   const svc = services[0]
   return [
     {
-      id: 'bk-1',
+      id: 'seed-1',
       studioId,
       serviceId: svc.id,
       serviceName: svc.title,
@@ -135,7 +63,7 @@ export function seedBookings(studioId: string, services: Service[]): Booking[] {
       reminderEnabled: true,
     },
     {
-      id: 'bk-2',
+      id: 'seed-2',
       studioId,
       serviceId: services[1]?.id ?? svc.id,
       serviceName: services[1]?.title ?? svc.title,

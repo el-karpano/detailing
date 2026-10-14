@@ -4,13 +4,18 @@ import { login } from '../data/store'
 
 export default function OwnerLogin() {
   const nav = useNavigate()
-  const [email, setEmail] = useState('owner@studio.local')
-  const [password, setPassword] = useState('owner123')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault()
-    if (login(email, password)) {
+    setError('')
+    setBusy(true)
+    const ok = await login(email, password)
+    setBusy(false)
+    if (ok) {
       nav('/owner/dashboard')
     } else {
       setError('Неверная почта или пароль')
@@ -30,6 +35,7 @@ export default function OwnerLogin() {
           <input
             id="email"
             type="email"
+            autoComplete="username"
             className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 outline-none focus:border-[#4690FF]"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -43,6 +49,7 @@ export default function OwnerLogin() {
           <input
             id="password"
             type="password"
+            autoComplete="current-password"
             className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 outline-none focus:border-[#4690FF]"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -50,10 +57,13 @@ export default function OwnerLogin() {
           />
         </div>
         {error && <p className="text-sm text-red-300">{error}</p>}
-        <button type="submit" className="accent w-full rounded-2xl px-5 py-3 font-semibold">
-          Войти
+        <button
+          type="submit"
+          disabled={busy}
+          className="accent w-full rounded-2xl px-5 py-3 font-semibold disabled:opacity-60"
+        >
+          {busy ? 'Проверяем…' : 'Войти'}
         </button>
-        <p className="text-xs text-white/45">Демо: owner@studio.local / owner123</p>
       </form>
     </main>
   )

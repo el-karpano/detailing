@@ -1,0 +1,57 @@
+{
+  "slug": "demo",
+  "workerName": "detailing-demo",
+  "brand": {
+    "name": "Demo Детейлинг",
+    "shortName": "DEMO",
+    "description": "Тестовый клиент для проверки мультибренда"
+  },
+  "studio": {
+    "name": "Demo Детейлинг Про",
+    "tagline": "Тестовая студия с другими услугами",
+    "description": "Описание тестовой студии. Не путать с SGX.",
+    "address": "Санкт-Петербург, Тестовая, 1",
+    "phone": "+7 (900) 111-22-33",
+    "workHours": "10:00–22:00",
+    "weekends": "без выходных",
+    "logoUrl": "/assets/logo.svg",
+    "logoHeaderUrl": "/assets/logo-header.svg",
+    "heroImageUrl": "/assets/hero-car-blue.jpg",
+    "bays": 5,
+    "prepMin": 15,
+    "cancelPolicy": "Отмена за 6 часов.",
+    "services": [
+      {
+        "id": "svc-express",
+        "title": "Экспресс-мойка",
+        "description": "Быстрая мойка кузова за 30 минут",
+        "price": 990,
+        "durationMin": 30,
+        "active": true
+      },
+      {
+        "id": "svc-premium",
+        "title": "Премиум детейлинг",
+        "description": "Полный комплекс премиум-ухода",
+        "price": 45000,
+        "durationMin": 1440,
+        "active": true
+      }
+    ],
+    "photos": [
+      {
+        "id": "ph-1",
+        "title": "Demo работа",
+        "caption": "Тестовое фото",
+        "imageUrl": "/assets/car2.jpg"
+      }
+    ],
+    "infoCards": [
+      {
+        "id": "card-1",
+        "title": "Тест",
+        "body": "Карточка тестового клиента"
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+id,name,city,address,phone,channel,source,has_site,has_yclients,note
+1,MoonShine,Гомель,,+375 29 357-15-03,Telegram/звонок,taplink.cc/moonshine,no,no,только taplink
+2,Schwartz,Гомель,ул. Дорожная 8,+375 33 375-01-51,звонок/Viber,2GIS/отзывы,no,no,189 оценок
+3,LEMUS,Минск,ул. Казинца 12а к.5,+375 33 345-33-33,звонок,orgpage.by,no,no,детейлинг+оклейка
+4,//MADCAR (Madcar),Минск,пр. Независимости 84а,,IG/ВК,av.by/2GIS,no,no,уточнить телефон
+5,AUTOPEDANT,Гомель,,,av.by/IG,av.by/company/detailing/autopedant,no,no,мойка/оклейка/тонировка
+6,Martin Avto Detailing,Могилёв,Гомельское ш. 38,,звонок,gorodwiki,no,no,мастер Дмитрий 12 отзывов
+7,M2detailing,Минск,ул. Нововиленская 60,,av.by+gmail,av.by,no,no,выездной детейлинг салона
+8,ДС Детейлинг,Минск,,,slivki/IG,slivki.by,no,no,химчистка
+9,СТО Галактика Авто,Гомель,ул. Черниговская 25а,,звонок,2GIS,no,no,полировка/защита
+10,Автоцентр Фрегат,Гомель,п. Победа ул. Центральная 74,,звонок,2GIS,no,no,полировка ЛКП
+11,Nikauto,Витебск,ул. Пороховая 9к1,,yolk.by,yolk.by,no,no,
+12,Evolution Detailing,,,в taplink,taplink.cc/evolution_detailing,no,no,оклейка/полировка/химчистка
+13,CarLab.Detailing,,,,av.by,av.by/company/detailing/carlab,no,no,карточка без сайта
+14,Detailing Service,,,,av.by,av.by/company/detailing/detailingservice,no,no,
+15,Aqualab,,,,av.by,av.by/company/detailing/aqualab,no,no,
+16,MXauto,Минск,Цнянка ул. Рождественская 39,,avtoportal,avtoportal.by,no,no,оклейка плёнкой

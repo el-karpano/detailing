@@ -1,0 +1,172 @@
+{
+  "body": {
+    "tag": "BODY",
+    "cls": "",
+    "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "size": "16px",
+    "weight": "400",
+    "lh": "24px",
+    "color": "rgb(255, 255, 255)",
+    "bg": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "padding": "0px",
+    "margin": "0px",
+    "gap": "normal",
+    "border": "0px solid rgb(255, 255, 255)",
+    "display": "block"
+  },
+  "h1": {
+    "tag": "H1",
+    "cls": "astryx-heading x1tgivj0 xcg7oai xfmsba7 x1v68xuy x1lliihq",
+    "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "size": "34px",
+    "weight": "600",
+    "lh": "39.1px",
+    "color": "rgb(255, 255, 255)",
+    "bg": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "padding": "0px",
+    "margin": "0px",
+    "gap": "normal",
+    "border": "0px solid rgb(255, 255, 255)",
+    "display": "block"
+  },
+  "h2": {
+    "tag": "H2",
+    "cls": "astryx-heading x1tgivj0 x1xvnhcw x1cpk1wn x12yy4cs x1lliihq",
+    "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "size": "22px",
+    "weight": "600",
+    "lh": "30.8px",
+    "color": "rgb(255, 255, 255)",
+    "bg": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "padding": "0px",
+    "margin": "0px",
+    "gap": "normal",
+    "border": "0px solid rgb(255, 255, 255)",
+    "display": "block"
+  },
+  "nav": null,
+  "main": null,
+  "buttons": [
+    {
+      "tag": "BUTTON",
+      "cls": "button button-ghost ",
+      "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+      "size": "13px",
+      "weight": "600",
+      "lh": "17.55px",
+      "color": "rgb(161, 161, 161)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "radius": "16px",
+      "padding": "12px 8px",
+      "margin": "0px",
+      "gap": "12px",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "display": "flex"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "button button-ghost ",
+      "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+      "size": "13px",
+      "weight": "600",
+      "lh": "17.55px",
+      "color": "rgb(161, 161, 161)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "radius": "16px",
+      "padding": "12px 8px",
+      "margin": "0px",
+      "gap": "12px",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "display": "flex"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "button button-ghost ",
+      "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+      "size": "13px",
+      "weight": "600",
+      "lh": "17.55px",
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(28, 28, 28)",
+      "radius": "16px",
+      "padding": "12px 8px",
+      "margin": "0px",
+      "gap": "12px",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "display": "flex"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "button button-secondary ",
+      "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+      "size": "14px",
+      "weight": "600",
+      "lh": "18.9px",
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(20, 20, 20)",
+      "radius": "24px",
+      "padding": "12px 20px",
+      "margin": "0px",
+      "gap": "12px",
+      "border": "1px solid rgb(36, 36, 36)",
+      "display": "flex"
+    }
+  ],
+  "cards": [
+    {
+      "tag": "DIV",
+      "cls": "astryx-card x2kkz0m x153u1i6 x7giv3 x1p8z4y0 x1de1mus xw28qpl x9f619 x1ep0dkj x94cj42 x1hmud4d x1q8d17g x1c3n52a x180vrw",
+      "font": "\"Inter Variable\", -apple-system, sans-serif",
+      "size": "16px",
+      "weight": "400",
+      "lh": "24px",
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(13, 13, 13)",
+      "radius": "28px",
+      "padding": "20px",
+      "margin": "0px",
+      "gap": "normal",
+      "border": "1px solid rgb(36, 36, 36)",
+      "display": "block"
+    }
+  ],
+  "imgs": [
+    {
+      "src": "https://studio-booking-theta.vercel.app/s/graphite/assets/logo-header.svg?v=3",
+      "w": 720,
+      "h": 720,
+      "alt": "Логотип SGX"
+    },
+    {
+      "src": "https://studio-booking-theta.vercel.app/s/graphite/assets/logo.svg?v=3",
+      "w": 720,
+      "h": 720,
+      "alt": "Логотип SGX"
+    }
+  ],
+  "links": [
+    {
+      "href": "#astryx-app-shell-main",
+      "text": "Skip to content"
+    },
+    {
+      "href": "/s/graphite/",
+      "text": "SGX"
+    },
+    {
+      "href": "/s/graphite/account/",
+      "text": ""
+    },
+    {
+      "href": "/s/graphite/",
+      "text": "На главную"
+    },
+    {
+      "href": "tel:+79990000000",
+      "text": "Связаться"
+    }
+  ]
+}

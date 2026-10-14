@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { getStudio } from '../data/store'
+import { formatServicePrice } from '../lib/money'
+import { useStoreTick } from '../lib/useStoreTick'
 
 function formatDuration(min: number) {
   if (min >= 480 && min % 480 === 0) return `${min / 480} д`
@@ -8,6 +10,7 @@ function formatDuration(min: number) {
 }
 
 export default function Services() {
+  useStoreTick()
   const studio = getStudio()
   const nav = useNavigate()
   const services = studio.services.filter((s) => s.active)
@@ -29,7 +32,7 @@ export default function Services() {
               </div>
             </div>
             <div className="service-row-price">
-              {s.price >= 12000 ? `от ${s.price.toLocaleString('ru-RU')} ₽` : `${s.price.toLocaleString('ru-RU')} ₽`}
+              {formatServicePrice(s.price, s.priceFrom)}
               <span aria-hidden>↗</span>
             </div>
           </button>

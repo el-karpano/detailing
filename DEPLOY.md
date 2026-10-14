@@ -6,6 +6,49 @@
 
 ---
 
+## Мультиклиент (white-label) — быстрый старт
+
+Одна кодовая база, под каждого клиента свой билд и свой бесплатный субдомен.
+
+### Новый клиент
+```bash
+npm run new-client -- my-studio
+# 1. clients/my-studio/client.json — имя, телефон, услуги, цены
+# 2. clients/my-studio/assets/ — фото (logo.svg, logo-header.svg, hero, работы)
+npm run ship -- my-studio
+```
+
+Готово: `https://detailing-my-studio.deteiling-pro.workers.dev`
+`ship` сам создаёт D1-базу `detailing-my-studio-db` и прокидывает секреты (MIMO/VAPID).
+
+### Правка у существующего клиента
+1. Поменять данные в `clients/<slug>/client.json` (цены, услуги, тексты) или заменить фото в `assets/`
+2. `npm run ship -- <slug>` — DEFAULTS_REV пересчитается автоматически, контент обновится у пользователей
+
+### Команды
+| Команда | Что делает |
+|---|---|
+| `npm run new-client -- <slug>` | создать папку клиента из шаблона |
+| `npm run ship -- <slug>` | prepare + build + deploy (+ D1 + секреты) |
+| `npm run prepare:client -- <slug>` | только подставить данные (для локального `npm run dev`) |
+| `npm run build` | собрать текущего клиента (запомнен в `clients/.current`) |
+
+### Уже задеплоено
+| Клиент | URL |
+|---|---|
+| `sgx` (демо/презентация) | https://detailing-main.deteiling-pro.workers.dev |
+| `demo` (пример изоляции) | https://detailing-demo.deteiling-pro.workers.dev |
+
+### Поля client.json
+- `slug` — имя папки и суффикс субдомена
+- `workerName` — имя Worker (пусто → `detailing-<slug>`); у `sgx` = `detailing-main`
+- `brand` — `name`, `shortName`, `description` (PWA, title, шапка)
+- `studio` — имя, слоган, адрес, телефон, часы, логотипы, hero, услуги (id/title/description/price/durationMin/active), фото, infoCards
+
+**Важно:** перед `wrangler deploy` скрипт сам удаляет `dist/_redirects` (иначе Cloudflare 100324).
+
+---
+
 ## 0. Быстрый чек-лист (5 минут)
 
 1. Проект собирается локально: `npm run build` → папка `dist/`

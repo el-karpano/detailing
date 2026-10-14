@@ -1,7 +1,11 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { getMyBookings, getStudio, updateBooking } from '../data/store'
+import { formatMoney } from '../lib/money'
+import { cancelVisitReminder, downloadIcs } from '../lib/reminders'
+import { useStoreTick } from '../lib/useStoreTick'
 
 export default function MyBookings() {
+  useStoreTick()
   const studio = getStudio()
   const nav = useNavigate()
   const loc = useLocation()
@@ -12,83 +16,135 @@ export default function MyBookings() {
   )
 
   return (
-    <main className="safe-bottom mx-auto max-w-lg px-5 pt-8 pb-6">
-      <h1 className="text-2xl font-bold">Моя запись</h1>
-      <p className="mt-1 text-sm text-white/60">Ваши визиты в {studio.name}</p>
+    <main className="safe-bottom shell" style={{ paddingTop: 'var(--s6)' }}>
+      <h1 className="h1">Моя запись</h1>
+      <p className="muted" style={{ marginTop: 'var(--s2)' }}>
+        Ваши визиты в {studio.name}
+      </p>
 
       {justBooked && (
-        <div className="glass mt-4 rounded-2xl border-[#4690FF]/40 p-4">
-          <div className="font-semibold text-[#4690FF]">Запись подтверждена</div>
-          <p className="mt-1 text-sm text-white/70">
+        <div
+          className="card"
+          style={{
+            marginTop: 'var(--s4)',
+            padding: 'var(--s4)',
+            borderColor: 'rgba(38,148,254,0.35)',
+          }}
+        >
+          <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--color-accent)' }}>
+            Запись подтверждена
+          </div>
+          <p className="muted small" style={{ marginTop: 6 }}>
             Мы сохранили ваш визит. Возле времени будет видно, если оно занято другим клиентом.
           </p>
         </div>
       )}
 
       {bookings.length === 0 && (
-        <div className="glass mt-5 rounded-2xl p-6 text-center">
-          <p className="text-white/65">Пока нет записей</p>
+        <div
+          className="card"
+          style={{
+            marginTop: 'var(--s5)',
+            padding: 'var(--s8) var(--s5)',
+            textAlign: 'center',
+          }}
+        >
+          <div
+            aria-hidden
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 18,
+              background: 'var(--overlay)',
+              border: '1px solid var(--stroke)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 'var(--s4)',
+            }}
+          >
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" opacity="0.7">
+              <rect x="4" y="5" width="16" height="15" rx="3" />
+              <path d="M8 3v4M16 3v4M4 10h16" />
+            </svg>
+          </div>
+          <div style={{ fontWeight: 650, fontSize: 16 }}>Пока нет записей</div>
+          <p className="muted small" style={{ marginTop: 6, maxWidth: 260, marginInline: 'auto' }}>
+            Выберите услугу и удобное время — запись появится здесь.
+          </p>
           <button
+            type="button"
+            className="button button-primary"
+            style={{ marginTop: 'var(--s5)', width: '100%', maxWidth: 280 }}
             onClick={() => nav('/services')}
-            className="accent mt-4 rounded-2xl px-5 py-3 text-sm font-semibold"
           >
             Выбрать услугу
           </button>
         </div>
       )}
 
-      <div className="mt-5 space-y-3">
+      <div style={{ marginTop: 'var(--s5)', display: 'flex', flexDirection: 'column', gap: 'var(--s3)' }}>
         {bookings.map((b) => (
-          <article key={b.id} className="glass rounded-2xl p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="font-semibold">{b.serviceName}</div>
-                <div className="mt-1 text-sm text-white/70">
+          <article key={b.id} className="card" style={{ padding: 'var(--s4)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--s3)' }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 650, fontSize: 15 }}>{b.serviceName}</div>
+                <div className="muted small" style={{ marginTop: 4 }}>
                   {b.date} · {b.time} · бокс {b.bay}
                 </div>
-                <div className="mt-1 text-sm text-white/55">
-                  {b.clientName} · {b.car}
+                <div className="muted small" style={{ marginTop: 2 }}>
+                  {b.clientName}
+                  {b.car && b.car !== '—' ? ` · ${b.car}` : ''}
                 </div>
               </div>
-              <div className="text-right">
-                <div className="font-semibold text-[#4690FF]">
-                  {b.price.toLocaleString('ru-RU')} ₽
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--color-accent)' }}>
+                  {formatMoney(b.price)}
                 </div>
                 <StatusBadge status={b.status} />
               </div>
             </div>
             {b.reminderEnabled && (
-              <div className="mt-2 text-xs text-white/45">Напоминание за сутки включено</div>
+              <div className="muted" style={{ marginTop: 'var(--s3)', fontSize: 12, lineHeight: 1.4 }}>
+                Напоминание за сутки — уведомим при открытии приложения
+              </div>
             )}
-            <div className="mt-3 flex gap-2">
+            <div style={{ marginTop: 'var(--s3)', display: 'flex', gap: 'var(--s2)', flexWrap: 'wrap' }}>
               <button
-                className="glass-btn rounded-xl px-3 py-2 text-xs"
+                type="button"
+                className="button button-secondary"
+                style={{ minHeight: 40, padding: '0 14px', fontSize: 13, borderRadius: 12 }}
                 onClick={() => {
-                  const ics = [
-                    'BEGIN:VCALENDAR',
-                    'VERSION:2.0',
-                    'BEGIN:VEVENT',
-                    `DTSTART:${b.date.replace(/-/g, '')}T${b.time.replace(':', '')}00`,
-                    `SUMMARY:${b.serviceName}`,
-                    `DESCRIPTION:${studio.name}`,
-                    `LOCATION:${studio.address}`,
-                    'END:VEVENT',
-                    'END:VCALENDAR',
-                  ].join('\n')
-                  const blob = new Blob([ics], { type: 'text/calendar' })
-                  const a = document.createElement('a')
-                  a.href = URL.createObjectURL(blob)
-                  a.download = `visit-${b.date}-${b.time}.ics`
-                  a.click()
+                  downloadIcs(
+                    {
+                      id: b.id,
+                      serviceName: b.serviceName,
+                      date: b.date,
+                      time: b.time,
+                      studioName: studio.name,
+                      address: studio.address,
+                    },
+                    b.reminderEnabled,
+                  )
                 }}
               >
                 В календарь
               </button>
               <button
-                className="rounded-xl border border-red-500/30 px-3 py-2 text-xs text-red-200"
+                type="button"
+                className="button button-ghost"
+                style={{
+                  minHeight: 40,
+                  padding: '0 14px',
+                  fontSize: 13,
+                  borderRadius: 12,
+                  color: '#fca5a5',
+                  borderColor: 'rgba(248,113,113,0.35)',
+                }}
                 onClick={() => {
                   if (confirm('Отменить запись?')) {
                     updateBooking(b.id, { status: 'cancelled' })
+                    if (b.reminderEnabled) void cancelVisitReminder(b.id)
                     nav(0)
                   }
                 }}
@@ -104,13 +160,28 @@ export default function MyBookings() {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    pending: { label: 'Ожидает', cls: 'bg-yellow-500/15 text-yellow-200' },
-    accepted: { label: 'Принята', cls: 'bg-[#4690FF]/15 text-[#8db8ff]' },
-    ready: { label: 'Готова', cls: 'bg-emerald-500/15 text-emerald-200' },
-    done: { label: 'Завершена', cls: 'bg-white/10 text-white/70' },
-    cancelled: { label: 'Отменена', cls: 'bg-red-500/15 text-red-200' },
+  const map: Record<string, { label: string; color: string }> = {
+    pending: { label: 'Ожидает', color: '#eab308' },
+    accepted: { label: 'Принята', color: 'var(--color-accent)' },
+    ready: { label: 'Готова', color: '#34d399' },
+    done: { label: 'Завершена', color: 'var(--secondary)' },
+    cancelled: { label: 'Отменена', color: '#f87171' },
   }
   const s = map[status] ?? map.pending
-  return <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] ${s.cls}`}>{s.label}</span>
+  return (
+    <span
+      className="small"
+      style={{
+        display: 'inline-block',
+        marginTop: 6,
+        fontSize: 11,
+        padding: '3px 8px',
+        borderRadius: 999,
+        color: s.color,
+        background: 'color-mix(in srgb, currentColor 12%, transparent)',
+      }}
+    >
+      {s.label}
+    </span>
+  )
 }

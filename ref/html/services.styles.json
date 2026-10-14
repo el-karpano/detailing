@@ -1,0 +1,173 @@
+{
+  "body": {
+    "tag": "BODY",
+    "cls": "",
+    "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "size": "16px",
+    "weight": "400",
+    "lh": "24px",
+    "color": "rgb(255, 255, 255)",
+    "bg": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "padding": "0px",
+    "margin": "0px",
+    "gap": "normal",
+    "border": "0px solid rgb(255, 255, 255)",
+    "display": "block"
+  },
+  "h1": {
+    "tag": "H1",
+    "cls": "astryx-heading x1tgivj0 xcg7oai xfmsba7 x1v68xuy x1lliihq",
+    "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "size": "34px",
+    "weight": "600",
+    "lh": "45.3322px",
+    "color": "rgb(255, 255, 255)",
+    "bg": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "padding": "0px",
+    "margin": "0px",
+    "gap": "normal",
+    "border": "0px solid rgb(255, 255, 255)",
+    "display": "block"
+  },
+  "h2": null,
+  "nav": {
+    "tag": "NAV",
+    "cls": "astryx-stack x78zum5 x1q0g3np x1lfs0n9 x1ngg2t4 bottom-nav",
+    "font": "\"Inter Variable\", -apple-system, sans-serif",
+    "size": "16px",
+    "weight": "400",
+    "lh": "24px",
+    "color": "rgb(255, 255, 255)",
+    "bg": "rgba(0, 0, 0, 0)",
+    "radius": "36px",
+    "padding": "8px",
+    "margin": "0px",
+    "gap": "4px",
+    "border": "",
+    "display": "flex"
+  },
+  "main": null,
+  "buttons": [
+    {
+      "tag": "BUTTON",
+      "cls": "service-row",
+      "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+      "size": "16px",
+      "weight": "400",
+      "lh": "24px",
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "radius": "20px",
+      "padding": "20px 16px",
+      "margin": "0px",
+      "gap": "16px",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "display": "flex"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "service-row",
+      "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+      "size": "16px",
+      "weight": "400",
+      "lh": "24px",
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "radius": "20px",
+      "padding": "20px 16px",
+      "margin": "0px",
+      "gap": "16px",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "display": "flex"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "service-row",
+      "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+      "size": "16px",
+      "weight": "400",
+      "lh": "24px",
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "radius": "20px",
+      "padding": "20px 16px",
+      "margin": "0px",
+      "gap": "16px",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "display": "flex"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "service-row",
+      "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+      "size": "16px",
+      "weight": "400",
+      "lh": "24px",
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "radius": "20px",
+      "padding": "20px 16px",
+      "margin": "0px",
+      "gap": "16px",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "display": "flex"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "button button-secondary chat-launcher",
+      "font": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+      "size": "14px",
+      "weight": "600",
+      "lh": "18.9px",
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgba(0, 0, 0, 0)",
+      "radius": "50%",
+      "padding": "12px",
+      "margin": "0px",
+      "gap": "12px",
+      "border": "1px solid rgb(36, 36, 36)",
+      "display": "flex"
+    }
+  ],
+  "cards": [],
+  "imgs": [
+    {
+      "src": "https://studio-booking-theta.vercel.app/s/graphite/assets/logo-header.svg?v=3",
+      "w": 720,
+      "h": 720,
+      "alt": "Логотип SGX"
+    }
+  ],
+  "links": [
+    {
+      "href": "#astryx-app-shell-main",
+      "text": "Skip to content"
+    },
+    {
+      "href": "/s/graphite/",
+      "text": "SGX"
+    },
+    {
+      "href": "/s/graphite/account/",
+      "text": ""
+    },
+    {
+      "href": "tel:+79990000000",
+      "text": "Связаться"
+    },
+    {
+      "href": "/s/graphite/",
+      "text": "Главная"
+    },
+    {
+      "href": "/s/graphite/services",
+      "text": "Услуги"
+    },
+    {
+      "href": "/s/graphite/booking",
+      "text": "Моя запись"
+    }
+  ]
+}

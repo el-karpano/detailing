@@ -3,6 +3,8 @@ export type Service = {
   title: string
   description: string
   price: number
+  /** true — цена «от» (уточняется после осмотра) */
+  priceFrom?: boolean
   durationMin: number
   active: boolean
 }
@@ -56,6 +58,7 @@ export type Studio = {
   workHours: string
   weekends: string
   logoUrl: string
+  logoHeaderUrl?: string
   heroImageUrl: string
   bays: number
   prepMin: number

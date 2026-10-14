@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { CLIENT_BRAND, DEFAULT_STUDIO } from '../data/defaults'
 import { INSTALL_GUIDES, detectPlatform, useInstall, type Platform } from '../lib/pwaInstall'
 
 function StepIcon({ name }: { name: string }) {
@@ -74,9 +75,9 @@ export default function Install() {
       <div className="booking-card install-card install-guide-hero" style={{ marginBottom: 0 }}>
         <div className="ocean-content install-content">
           <div style={{ display: 'flex', gap: 'var(--s3)', alignItems: 'center' }}>
-            <img src="/assets/logo.svg" alt="Логотип SGX" className="brand-logo install-app-icon" />
+            <img src={DEFAULT_STUDIO.logoUrl} alt={`Логотип ${CLIENT_BRAND.shortName}`} className="brand-logo install-app-icon" />
             <div>
-              <div style={{ fontWeight: 700, fontSize: 15 }}>SGX</div>
+              <div style={{ fontWeight: 700, fontSize: 15 }}>{CLIENT_BRAND.shortName}</div>
               <div className="muted small">Приложение студии</div>
             </div>
           </div>

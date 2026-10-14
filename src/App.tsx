@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
+import ScrollToTop from './components/ScrollToTop'
 import Home from './pages/Home'
 import Services from './pages/Services'
 import MyBookings from './pages/MyBookings'
@@ -16,6 +17,7 @@ import { InstallProvider } from './lib/pwaInstall'
 export default function App() {
   return (
     <InstallProvider>
+      <ScrollToTop />
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />

@@ -1,0 +1,52 @@
+{
+  "slug": "testqa",
+  "workerName": "detailing-testqa",
+  "brand": {
+    "name": "QA Тест Студия",
+    "shortName": "QA",
+    "currency": "Br",
+    "description": "Тестовая студия"
+  },
+  "studio": {
+    "name": "QA Тест Студия",
+    "tagline": "Быстрый тест онбординга",
+    "description": "Проверка создания нового клиента",
+    "address": "Минск, Тестовая, 1",
+    "phone": "+375 29 000-00-00",
+    "workHours": "09:00–20:00",
+    "weekends": "вс",
+    "logoUrl": "/assets/logo.svg",
+    "logoHeaderUrl": "/assets/logo-header.svg",
+    "heroImageUrl": "/assets/hero-car-blue.jpg",
+    "bays": 2,
+    "prepMin": 30,
+    "cancelPolicy": "Отмена не позднее чем за 12 часов до визита.",
+    "services": [
+      {
+        "id": "svc-1",
+        "title": "Название услуги",
+        "description": "Что входит в услугу",
+        "price": 1000,
+        "durationMin": 60,
+        "active": true
+      }
+    ],
+    "photos": [
+      {
+        "id": "ph-1",
+        "title": "Название работы",
+        "caption": "Короткая подпись",
+        "imageUrl": "/assets/car2.jpg"
+      }
+    ],
+    "infoCards": [
+      {
+        "id": "card-1",
+        "title": "Заголовок карточки",
+        "body": "Текст карточки"
+      }
+    ]
+  },
+  "databaseName": "detailing-testqa-db",
+  "databaseId": "5fff6aff-4210-4819-aafa-5ca1c91f151d"
+}

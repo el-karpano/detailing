@@ -1,6 +1,23 @@
-name = "detailing-main"
+name = "detailing-francev"
 compatibility_date = "2026-01-01"
+compatibility_flags = ["nodejs_compat"]
+main = "worker/index.js"
+
+[[kv_namespaces]]
+binding = "VISITS"
+id = "9b9db4766eb84d6ea2c4250ba8f44eb3"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "detailing-francev-db"
+database_id = "6016cbb9-a516-4a6b-b568-6c196006e0d5"
 
 [assets]
 directory = "./dist"
 not_found_handling = "single-page-application"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[vars]
+WORKER_NAME = "detailing-francev"
+STUDIO_ID = "studio-francev"
